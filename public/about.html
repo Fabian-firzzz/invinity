@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tentang Kami - AirPods Store</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+    </div>
+
+    <header>
+        <div class="container">
+            <div class="logo">
+                <a href="index.html" class="logo-link">
+                    <img src="image/FOTO LOGO.jpg" alt="Logo" class="logo-img" /> <!-- GANTI GAMBAR DI SINI -->
+                    <span class="logo-text" style="font-size: 2rem; font-weight: 700; color: #6f00ff; line-height: 60px;">INFINITY STORE</span>
+                </a>
+            </div>
+            <nav class="main-nav" id="mainNav">
+                <ul>
+                    <li><a href="index.html">Beranda</a></li>
+                    <li><a href="products.html">Produk</a></li>
+                    <li><a href="about.html" class="active">Tentang Kami</a></li>
+                    <li><a href="testimonials.html">Testimoni</a></li>
+                    <li><a href="contact.html">Kontak</a></li>
+                </ul>
+            </nav>
+            <div class="nav-icons">
+                <button id="cartToggle" class="cart-toggle" aria-label="Keranjang Belanja">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span id="cartCount" class="cart-count">0</span>
+                </button>
+                <button id="darkModeToggle" class="dark-mode-toggle" aria-label="Toggle Dark/Light Mode">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </button>
+                <button class="menu-toggle" id="mobileMenuToggle" aria-label="Toggle Menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="page-hero-section">
+            <div class="hero-background">
+                <div class="container">
+                    <h1 class="glow-text">Tentang AirPods Store</h1>
+                    <p>Membawa inovasi audio terbaik langsung ke telinga Anda.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="about-content-section scroll-animation">
+            <div class="container">
+                <h2>Visi Kami</h2>
+                <p>Kami percaya bahwa kualitas audio yang superior harus dapat diakses oleh semua orang. Visi kami adalah menjadi destinasi utama bagi para penggemar audio yang mencari pengalaman mendengarkan yang tak tertandingi dengan produk AirPods asli dan layanan pelanggan yang luar biasa.</p>
+
+                <h2>Misi Kami</h2>
+                <p>Misi kami adalah menyediakan rangkaian lengkap AirPods dan aksesorisnya, memastikan keaslian produk, memberikan harga yang kompetitif, serta menawarkan dukungan purna jual yang responsif dan informatif. Kami berkomitmen untuk membangun hubungan jangka panjang dengan pelanggan kami berdasarkan kepercayaan dan kepuasan.</p>
+
+                <h2>Nilai-Nilai Kami</h2>
+                <div class="features-grid">
+                    <div class="feature-item">
+                        <i class="fas fa-handshake"></i>
+                        <h3>Integritas</h3>
+                        <p>Beroperasi dengan kejujuran dan transparansi dalam setiap interaksi.</p>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-lightbulb"></i>
+                        <h3>Inovasi</h3>
+                        <p>Selalu mengikuti perkembangan teknologi audio terbaru untuk Anda.</p>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-heart"></i>
+                        <h3>Fokus Pelanggan</h3>
+                        <p>Mengutamakan kebutuhan dan kepuasan pelanggan di atas segalanya.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-col">
+                    <h3>EarPhone Store</h3>
+                    <p>Tempat terbaik untuk mendapatkan EarPhone impian Anda.</p>
+                </div>
+                <div class="footer-col">
+                    <h3>Navigasi</h3>
+                    <ul>
+                        <li><a href="index.html">Beranda</a></li>
+                        <li><a href="products.html">Produk</a></li>
+                        <li><a href="about.html">Tentang Kami</a></li>
+                        <li><a href="testimonials.html">Testimoni</a></li>
+                        <li><a href="contact.html">Kontak</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Ikuti Kami</h3>
+                    <div class="social-links">
+                        <a href="https://instagram.comhttps://www.instagram.com/store.infinity999?igsh=aHR3c3FxaGYxdTcz" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <!-- <a href="https://tiktok.com" target="_blank" aria-label="TikTok"><i class="fab fa-tiktok"></i></a> -->
+                    </div>
+                    <div class="share-buttons">
+                        <p>Bagikan Halaman Ini:</p>
+                        <a href="#" class="share-btn" onclick="sharePage('facebook')"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="share-btn" onclick="sharePage('twitter')"><i class="fab fa-twitter"></i></a>
+                        <a href="https://wa.me/6285697666595" class="share-btn" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h3>Informasi</h3>
+                    <ul>
+                        <li><a href="#">Kebijakan Privasi</a></li>
+                        <li><a href="#">Syarat & Ketentuan</a></li>
+                        <li><a href="#">Garansi & Pengembalian</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Invinity Store. Hak Cipta Dilindungi Undang-Undang.</p>
+            </div>
+        </div>
+    </footer>
+
+    <div id="productDetailModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <div class="modal-body">
+                <div class="modal-image-gallery">
+                    <img id="modalMainImage" src="" alt="Product Image"> <!-- GANTI GAMBAR DI SINI -->
+                    <div class="modal-thumbnails" id="modalThumbnails">
+                        </div>
+                </div>
+                <div class="modal-details">
+                    <h3 id="modalProductName"></h3>
+                    <p id="modalProductPrice" class="price"></p>
+                    <p id="modalProductDescription"></p>
+                    <div class="model-options" id="modalModelOptions">
+                        </div>
+                    <button class="btn primary-btn mt-2">Beli Sekarang</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="cartModal" class="modal">
+        <div class="modal-content cart-modal-content">
+            <span class="close-button" id="closeCartModal">×</span>
+            <h2>Keranjang Belanja Anda</h2>
+            <div id="cartItemsContainer" class="cart-items-container">
+                <p id="emptyCartMessage">Keranjang Anda kosong.</p>
+            </div>
+            <div class="cart-summary">
+                <p>Total: <span id="cartTotal">Rp 0</span></p>
+                <button class="btn primary-btn" id="checkoutButton">Checkout Sekarang</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/animations.js"></script>
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Testimoni Pelanggan - AirPods Store</title>
+    <!-- path CSS diperbaiki: sesuaikan dengan struktur public/ -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+    </div>
+
+    <header>
+        <div class="container" style="display: flex; align-items: center; justify-content: space-between; height: 70px;">
+            <div class="logo" style="display: flex; align-items: center;">
+                <a href="index.html" class="logo-link" style="display: flex; align-items: center; gap: 16px; text-decoration: none;">
+                    <img src="image/FOTO LOGO.jpg" alt="Logo" class="logo-img" style="height: 60px; width: 60px; object-fit: cover; border-radius: 10px;"> <!-- GANTI GAMBAR DI SINI -->
+                    <span class="logo-text" style="font-size: 2rem; font-weight: 700; color: #6f00ff; line-height: 60px;">INFINITY STORE</span>
+                </a>
+            </div>
+            <nav class="main-nav" id="mainNav">
+                <ul style="display: flex; align-items: center; gap: 24px; margin: 0;">
+                    <li><a href="index.html">Beranda</a></li>
+                    <li><a href="products.html">Produk</a></li>
+                    <li><a href="about.html">Tentang Kami</a></li>
+                    <li><a href="testimonials.html" class="active">Testimoni</a></li>
+                    <li><a href="contact.html">Kontak</a></li>
+                </ul>
+            </nav>
+            <div class="nav-icons" style="display: flex; align-items: center; gap: 16px;">
+                <button id="cartToggle" class="cart-toggle" aria-label="Keranjang Belanja">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span id="cartCount" class="cart-count">0</span>
+                </button>
+                <button id="darkModeToggle" class="dark-mode-toggle" aria-label="Toggle Dark/Light Mode">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </button>
+                <button class="menu-toggle" id="mobileMenuToggle" aria-label="Toggle Menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="page-hero-section">
+            <div class="container">
+                <h1 class="glow-text">Apa Kata Pelanggan Kami</h1>
+                <p>Dengarkan pengalaman nyata dari pengguna produk kami yang puas.</p>
+            </div>
+        </section>
+
+        <section class="testimonials-listing-section scroll-animation">
+            <div class="container">
+                <div class="testimonial-grid">
+                    <div class="testimonial-item large-card">
+                        <p>"Saya tidak pernah menyangka AirPods Pro bisa sebagus ini. ANC-nya luar biasa saat bepergian, dan kualitas suaranya sangat jernih. Benar-benar investasi terbaik untuk audio!"</p>
+                        <h4>- Sarah Wijaya</h4>
+                        <span class="rating"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></span>
+                    </div>
+                    <div class="testimonial-item large-card">
+                        <p>"AirPods Max mengubah cara saya menikmati musik. Suaranya detail, bass-nya powerful, dan desainnya sangat premium. Kenyamanan dipakai berjam-jam juga patut diacungi jempol."</p>
+                        <h4>- Aditya Pratama</h4>
+                        <span class="rating"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i></span>
+                    </div>
+                    <div class="testimonial-item large-card">
+                        <p>"Untuk penggunaan sehari-hari, AirPods Generasi ke-3 ini sempurna. Ringan, pas di telinga, dan sangat mudah terkoneksi. Baterainya juga tahan lama!"</p>
+                        <h4>- Dewi Lestari</h4>
+                        <span class="rating"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></span>
+                    </div>
+                    <div class="testimonial-item large-card">
+                        <p>"Saya awalnya ragu, tapi setelah mencoba AirPods Pro, saya langsung jatuh cinta. Fitur transparansinya sangat berguna di kantor, dan ANC-nya menyelamatkan saya dari kebisingan kota."</p>
+                        <h4>- Rio Fernanda</h4>
+                        <span class="rating"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></span>
+                    </div>
+                    <div class="testimonial-item large-card">
+                        <p>"Pengiriman cepat dan produknya original. AirPods Store benar-benar bisa dipercaya. AirPods saya berfungsi dengan sempurna!"</p>
+                        <h4>- Maya Kusumawati</h4>
+                        <span class="rating"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-col">
+                <h3>EarPhone Store</h3>
+                <p>Tempat terbaik untuk mendapatkan EarPhone impian Anda.</p>
+            </div>
+            <div class="footer-col">
+                <h3>Navigasi</h3>
+                <ul>
+                    <!-- link navigasi diperbaiki: relatif ke public/ -->
+                    <li><a href="index.html">Beranda</a></li>
+                    <li><a href="products.html">Produk</a></li>
+                    <li><a href="about.html">Tentang Kami</a></li>
+                    <li><a href="testimonials.html">Testimoni</a></li>
+                    <li><a href="contact.html">Kontak</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h3>Ikuti Kami</h3>
+                <div class="social-links">
+                    <a href="https://www.instagram.com/store.infinity999?igsh=aHR3c3FxaGYxdTcz" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <!-- <a href="https://tiktok.com" target="_blank" aria-label="TikTok"><i class="fab fa-tiktok"></i></a> -->
+                </div>
+                <div class="share-buttons">
+                    <p>Bagikan Halaman Ini:</p>
+                    <a href="#" class="share-btn" onclick="sharePage('facebook')"><i class="fab fa-facebook"></i></a>
+                    <a href="#" class="share-btn" onclick="sharePage('twitter')"><i class="fab fa-twitter"></i></a>
+                    <a href="https://wa.me/6285697666595" class="share-btn" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h3>Informasi</h3>
+                <ul>
+                    <li><a href="#">Kebijakan Privasi</a></li>
+                    <li><a href="#">Syarat & Ketentuan</a></li>
+                    <li><a href="#">Garansi & Pengembalian</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</footer>
+
+    <div id="productDetailModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <div class="modal-body">
+                <div class="modal-image-gallery">
+                    <img id="modalMainImage" src="" alt="Product Image"> <!-- GANTI GAMBAR DI SINI -->
+                    <div class="modal-thumbnails" id="modalThumbnails">
+                    </div>
+                </div>
+                <div class="modal-details">
+                    <h3 id="modalProductName"></h3>
+                    <p id="modalProductPrice" class="price"></p>
+                    <p id="modalProductDescription"></p>
+                    <div class="model-options" id="modalModelOptions">
+                    </div>
+                    <button class="btn primary-btn mt-2">Beli Sekarang</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="cartModal" class="modal">
+        <div class="modal-content cart-modal-content">
+            <span class="close-button" id="closeCartModal">×</span>
+            <h2>Keranjang Belanja Anda</h2>
+            <div id="cartItemsContainer" class="cart-items-container">
+                <p id="emptyCartMessage">Keranjang Anda kosong.</p>
+            </div>
+            <div class="cart-summary">
+                <p>Total: <span id="cartTotal">Rp 0</span></p>
+                <button class="btn primary-btn" id="checkoutButton">Checkout Sekarang</button>
+            </div>
+        </div>
+    </div>
+    <script src="/js/main.js"></script>
+    <script src="/js/animations.js"></script>
+</body>
+</html>

@@ -1,0 +1,159 @@
+/* Mobile Devices (<= 768px) */
+@media (max-width: 768px) {
+    .main-nav {
+        display: none; /* Hide main nav on small screens */
+        flex-direction: column;
+        background-color: var(--secondary-bg);
+        position: absolute;
+        top: 60px; /* Adjust based on header height */
+        left: 0;
+        width: 100%;
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        animation: slideDown 0.3s ease-out forwards;
+    }
+
+    .main-nav.active {
+        display: flex;
+    }
+
+    .main-nav ul {
+        flex-direction: column;
+        text-align: center;
+        padding: 20px 0;
+    }
+
+    .main-nav ul li {
+        margin: 15px 0;
+    }
+
+    .menu-toggle {
+        display: block; /* Show hamburger menu on small screens */
+    }
+
+    .hero-content h1, .page-hero-section h1 {
+        font-size: 2.5em;
+    }
+
+    .hero-content p, .page-hero-section p {
+        font-size: 1.1em;
+    }
+
+    .features-grid,
+    .product-grid,
+    .testimonial-grid, /* New */
+    .contact-info-grid /* New */
+    {
+        grid-template-columns: 1fr; /* Single column layout */
+    }
+
+    .testimonial-item {
+        padding: 30px 20px;
+    }
+
+    .modal-content {
+        flex-direction: column;
+        padding: 20px;
+        width: 95%;
+    }
+
+    .modal-body {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .modal-thumbnails img {
+        width: 60px;
+        height: 60px;
+    }
+
+    .footer-content {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .footer-col {
+        min-width: unset; /* Remove min-width for stacking */
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+    .footer-col h3 {
+        margin-top: 20px;
+    }
+
+    .social-links, .share-buttons {
+        justify-content: center;
+        display: flex; /* Ensure icons are centered */
+    }
+
+    .share-buttons p {
+        width: 100%;
+        text-align: center;
+    }
+
+    h2 {
+        font-size: 2em;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        font-size: 0.9em;
+    }
+
+    .comparison-table table {
+        min-width: 400px; /* Adjust min-width for smaller mobile screens */
+    }
+
+    /* Animation for mobile menu */
+    @keyframes slideDown {
+        from {
+            transform: translateY(-100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+}
+
+/* Tablet Devices (769px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .container {
+        padding: 0 30px;
+    }
+
+    .hero-content h1, .page-hero-section h1 {
+        font-size: 3.5em;
+    }
+
+    .hero-content p, .page-hero-section p {
+        font-size: 1.3em;
+    }
+
+    .features-grid,
+    .product-grid {
+        grid-template-columns: repeat(2, 1fr); /* Two columns */
+    }
+
+    .testimonial-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .contact-info-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .main-nav ul li {
+        margin-left: 20px;
+    }
+
+    .modal-content {
+        max-width: 80%;
+    }
+}
+
+/* Desktop Devices (>= 1025px) */
+@media (min-width: 1025px) {
+    /* No specific overrides needed here, base styles apply */
+}

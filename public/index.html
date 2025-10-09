@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INFINITY STORE - AirPods dan Audio Premium</title>
+    
+    <!-- Font & Icon -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+    <!-- Loading screen -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="logo">
+                <a href="index.html" class="logo-link">
+                    <img src="image/FOTO LOGO.jpg" alt="Logo" class="logo-img" />
+                    <span class="logo-text" style="font-size: 2rem; font-weight: 700; color: #6f00ff;">INFINITY STORE</span>
+                </a>
+            </div>
+            <nav class="main-nav" id="mainNav">
+                <ul>
+                    <li><a href="index.html" class="active">Beranda</a></li>
+                    <li><a href="products.html">Produk</a></li>
+                    <li><a href="about.html">Tentang Kami</a></li>
+                    <li><a href="testimonials.html">Testimoni</a></li>
+                    <li><a href="contact.html">Kontak</a></li>
+                </ul>
+            </nav>
+            <div class="nav-icons">
+                <button id="cartToggle" class="cart-toggle"><i class="fas fa-shopping-cart"></i><span id="cartCount" class="cart-count">0</span></button>
+                <button id="darkModeToggle" class="dark-mode-toggle"><i class="fas fa-moon" id="themeIcon"></i></button>
+                <button id="mobileMenuToggle" class="menu-toggle"><i class="fas fa-bars"></i></button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Hero Section -->
+        <section class="hero-section" id="home">
+            <div class="hero-content">
+                <h1 class="glow-text">Rasakan Keajaiban Suara.</h1>
+                <p>Nikmati audio imersif dan konektivitas tak tertandingi dengan Invinity.</p>
+                <a href="#product-list" class="btn primary-btn">Lihat Produk</a>
+            </div>
+        </section>
+
+        <!-- Produk dari Database -->
+        <section class="products-section scroll-animation">
+            <div class="container">
+                <h2>Produk Kami</h2>
+                <div id="product-list" class="product-grid">
+                    
+                    <!-- Produk akan dimuat otomatis dari server.js lewat /api/products -->
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="cta-contact-section scroll-animation">
+            <div class="container text-center">
+                <h2>Punya Pertanyaan?</h2>
+                <p>Hubungi tim kami untuk bantuan lebih lanjut.</p>
+                <a href="contact.html" class="btn primary-btn">Hubungi Kami</a>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-col">
+                    <h3>EarPhone Store</h3>
+                    <p>Tempat terbaik untuk mendapatkan EarPhone impian Anda.</p>
+                </div>
+                <div class="footer-col">
+                    <h3>Navigasi</h3>
+                    <ul>
+                        <li><a href="index.html">Beranda</a></li>
+                        <li><a href="products.html">Produk</a></li>
+                        <li><a href="about.html">Tentang Kami</a></li>
+                        <li><a href="testimonials.html">Testimoni</a></li>
+                        <li><a href="contact.html">Kontak</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Ikuti Kami</h3>
+                    <div class="social-links">
+                        <a href="https://www.instagram.com/store.infinity999?igsh=aHR3c3FxaGYxdTcz" target="_blank"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h3>Informasi</h3>
+                    <ul>
+                        <li><a href="#">Kebijakan Privasi</a></li>
+                        <li><a href="#">Syarat & Ketentuan</a></li>
+                        <li><a href="#">Garansi & Pengembalian</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 INFINITY STORE. Hak Cipta Dilindungi Undang-Undang.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal Produk -->
+    <div id="productDetailModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <div class="modal-body">
+                <div class="modal-image-gallery">
+                    <img id="modalMainImage" src="" alt="Product Image">
+                    <div class="modal-thumbnails" id="modalThumbnails"></div>
+                </div>
+                <div class="modal-details">
+                    <h3 id="modalProductName"></h3>
+                    <p id="modalProductPrice" class="price"></p>
+                    <p id="modalProductDescription"></p>
+                    <div id="modalModelOptions"></div>
+                    <button class="btn primary-btn mt-2">Beli Sekarang</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Keranjang -->
+    <div id="cartModal" class="modal">
+        <div class="modal-content cart-modal-content">
+            <span class="close-button" id="closeCartModal">×</span>
+            <h2>Keranjang Belanja Anda</h2>
+            <div id="cartItemsContainer" class="cart-items-container">
+                <p id="emptyCartMessage">Keranjang Anda kosong.</p>
+            </div>
+            <div class="cart-summary">
+                <p>Total: <span id="cartTotal">Rp 0</span></p>
+                <button class="btn primary-btn" id="checkoutButton">Checkout Sekarang</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/main.js"></script>
+    <script src="js/animations.js"></script>
+
+    <!-- Tambahan script untuk load produk dari NodeJS (diperbarui untuk path gambar) -->
+    <script>
+        // Global variable to store products data for cart and modal functionality
+        window.apiProducts = [];
+
+        fetch('/api/products')
+            .then(res => res.json())
+            .then(products => {
+                // Store products globally for use in main.js
+                window.apiProducts = products;
+
+                const list = document.getElementById('product-list');
+                list.innerHTML = products.map(p => {
+                    const imgSrc = p.image || p.thumbnail || 'image/default.png';
+                    const priceFormatted = p.formattedPrice || `Rp ${p.price ? Number(p.price).toLocaleString('id-ID') : '-'}`;
+                    return `
+                    <div class="product-card" data-category="${p.category || ''}">
+                        <div class="product-image-wrap">
+                          <img src="${imgSrc}" alt="${p.name}">
+                        </div>
+                        <div class="product-body">
+                            <h3 class="product-title">${p.name}</h3>
+                            <p class="price">${priceFormatted}</p>
+                            <div class="product-actions">
+                                <button class="btn product-btn" data-product-id="${p.id}">Lihat Detail</button>
+                                <button class="btn add-to-cart-btn" data-product-id="${p.id}">Tambah ke Keranjang</button>
+                            </div>
+                        </div>
+                    </div>
+                    `;
+                }).join('');
+            })
+            .catch(err => console.error('Gagal memuat produk:', err));
+    </script>
+</body>
+</html>

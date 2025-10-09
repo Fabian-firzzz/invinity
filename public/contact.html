@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kontak Kami - AirPods Store</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+    </div>
+
+    <header>
+        <div class="container" style="display: flex; align-items: center; justify-content: space-between; height: 70px;">
+            <div class="logo" style="display: flex; align-items: center;">
+                <a href="index.html" class="logo-link" style="display: flex; align-items: center; gap: 16px; text-decoration: none;">
+                    <img src="image/FOTO LOGO.jpg" alt="Logo" class="logo-img" style="height: 60px; width: 60px; object-fit: cover; border-radius: 10px;"> <!-- GANTI GAMBAR DI SINI -->
+                    <span class="logo-text" style="font-size: 2rem; font-weight: 700; color: #6f00ff; line-height: 60px;">INFINITY STORE</span>
+                </a>
+            </div>
+            <nav class="main-nav" id="mainNav">
+                <ul style="display: flex; align-items: center; gap: 24px; margin: 0;">
+                    <li><a href="index.html">Beranda</a></li>
+                    <li><a href="products.html">Produk</a></li>
+                    <li><a href="about.html">Tentang Kami</a></li>
+                    <li><a href="testimonials.html">Testimoni</a></li>
+                    <li><a href="contact.html" class="active">Kontak</a></li>
+                </ul>
+            </nav>
+            <div class="nav-icons" style="display: flex; align-items: center; gap: 16px;">
+                <button id="cartToggle" class="cart-toggle" aria-label="Keranjang Belanja">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span id="cartCount" class="cart-count">0</span>
+                </button>
+                <button id="darkModeToggle" class="dark-mode-toggle" aria-label="Toggle Dark/Light Mode">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </button>
+                <button class="menu-toggle" id="mobileMenuToggle" aria-label="Toggle Menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="page-hero-section">
+            <div class="container">
+                <h1 class="glow-text">Hubungi Kami</h1>
+                <p>Kami siap membantu Anda. Jangan ragu untuk menghubungi kami kapan saja!</p>
+            </div>
+        </section>
+
+        <section class="contact-section scroll-animation">
+            <div class="container">
+                <h2>Kirim Pesan</h2>
+                <form id="contactForm">
+                    <div class="form-group">
+                        <label for="name">Nama Lengkap:</label>
+                        <input type="text" id="name" name="name" required placeholder="Masukkan nama Anda">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Alamat Email:</label>
+                        <input type="email" id="email" name="email" required placeholder="email@contoh.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="subject">Subjek:</label>
+                        <input type="text" id="subject" name="subject" placeholder="Misal: Pertanyaan Produk">
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Pesan Anda:</label>
+                        <textarea id="message" name="message" rows="7" required placeholder="Tulis pesan Anda di sini..."></textarea>
+                    </div>
+                    <button type="submit" class="btn primary-btn">Kirim Pesan</button>
+                </form>
+
+                <div class="contact-info-grid">
+                    <div class="info-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <h3>Alamat</h3>
+                        <p>Jl. Teknologi Canggih No. 123, Jakarta, Indonesia</p>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-envelope"></i>
+                        <h3>Email</h3>
+                        <p><a href="mailto:info@airpodsstore.com">info@airpodsstore.com</a></p>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-phone-alt"></i>
+                        <h3>Telepon</h3>
+                        <p><a href="tel:+6281234567890">+62 812-3456-7890</a></p>
+                    </div>
+                </div>
+
+                <div class="map-container scroll-animation">
+                    <h2>Lokasi Kami</h2>
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3966.3814846465493!2d106.82914171476939!3d-6.212005895511306!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69f417e0e7a255%3A0xf03b0c51b7c1a2c0!2sPatung%20Bundaran%20HI!5e0!3m2!1sen!2sid!4v1678901234567!5m2!1sen!2sid" width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-col">
+                    <h3>EarPhone Store</h3>
+                    <p>Tempat terbaik untuk mendapatkan EarPhone impian Anda.</p>
+                </div>
+                <div class="footer-col">
+                    <h3>Navigasi</h3>
+                    <ul>
+                        <li><a href="index.html">Beranda</a></li>
+                        <li><a href="products.html">Produk</a></li>
+                        <li><a href="about.html">Tentang Kami</a></li>
+                        <li><a href="testimonials.html">Testimoni</a></li>
+                        <li><a href="contact.html">Kontak</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Ikuti Kami</h3>
+                    <div class="social-links">
+                        <a href="https://www.instagram.com/store.infinity999?igsh=aHR3c3FxaGYxdTcz" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <!-- <a href="https://tiktok.com" target="_blank" aria-label="TikTok"><i class="fab fa-tiktok"></i></a> -->
+                    </div>
+                    <div class="share-buttons">
+                        <p>Bagikan Halaman Ini:</p>
+                        <a href="#" class="share-btn" onclick="sharePage('facebook')"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="share-btn" onclick="sharePage('twitter')"><i class="fab fa-twitter"></i></a>
+                        <a href="https://wa.me/6285697666595" class="share-btn" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h3>Informasi</h3>
+                    <ul>
+                        <li><a href="#">Kebijakan Privasi</a></li>
+                        <li><a href="#">Syarat & Ketentuan</a></li>
+                        <li><a href="#">Garansi & Pengembalian</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Invinity Store. Hak Cipta Dilindungi Undang-Undang.</p>
+            </div>
+        </div>
+    </footer>
+
+    <div id="productDetailModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <div class="modal-body">
+                <div class="modal-image-gallery">
+                    <img id="modalMainImage" src="" alt="Product Image"> <!-- GANTI GAMBAR DI SINI -->
+                    <div class="modal-thumbnails" id="modalThumbnails">
+                        </div>
+                </div>
+                <div class="modal-details">
+                    <h3 id="modalProductName"></h3>
+                    <p id="modalProductPrice" class="price"></p>
+                    <p id="modalProductDescription"></p>
+                    <div class="model-options" id="modalModelOptions">
+                        </div>
+                    <button class="btn primary-btn mt-2">Beli Sekarang</button>
+                </div>
+            </div>
+        </div>
+    </div>
+<div id="cartModal" class="modal">
+        <div class="modal-content cart-modal-content">
+            <span class="close-button" id="closeCartModal">×</span>
+            <h2>Keranjang Belanja Anda</h2>
+            <div id="cartItemsContainer" class="cart-items-container">
+                <p id="emptyCartMessage">Keranjang Anda kosong.</p>
+            </div>
+            <div class="cart-summary">
+                <p>Total: <span id="cartTotal">Rp 0</span></p>
+                <button class="btn primary-btn" id="checkoutButton">Checkout Sekarang</button>
+            </div>
+        </div>
+    </div>
+    <script src="js/main.js"></script>
+    <script src="js/animations.js"></script>
+</body>
+</html>

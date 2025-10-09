@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Produk AirPods - AirPods Store</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+    </div>
+
+    <header>
+        <div class="container">
+            <div class="logo">
+                <a href="index.html" class="logo-link">
+                    <img src="image/FOTO LOGO.jpg" alt="Logo" class="logo-img" />
+                    <span class="logo-text" style="font-size: 2rem; font-weight: 700; color: #6f00ff; line-height: 60px;">INFINITY STORE</span>
+                </a>
+            </div>
+            <nav class="main-nav" id="mainNav">
+                <ul>
+                    <li><a href="index.html">Beranda</a></li>
+                    <li><a href="products.html" class="active">Produk</a></li>
+                    <li><a href="about.html">Tentang Kami</a></li>
+                    <li><a href="testimonials.html">Testimoni</a></li>
+                    <li><a href="contact.html">Kontak</a></li>
+                </ul>
+            </nav>
+            <div class="nav-icons">
+                <button id="cartToggle" class="cart-toggle" aria-label="Keranjang Belanja">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span id="cartCount" class="cart-count">0</span>
+                </button>
+                <button id="darkModeToggle" class="dark-mode-toggle" aria-label="Toggle Dark/Light Mode">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </button>
+                <button class="menu-toggle" id="mobileMenuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="page-hero-section">
+            <div class="container">
+                <h1 class="glow-text">Semua Produk Invinity</h1>
+                <p>Temukan produk yang sempurna untuk pengalaman audio Anda.</p>
+            </div>
+        </section>
+
+        <section class="products-listing-section scroll-animation">
+            <div class="container">
+                <h2>Pilihan Kami</h2>
+                <div class="product-filter">
+                    <button class="filter-btn active" data-filter="all">Semua</button>
+                    <button class="filter-btn" data-filter="airpods_pro">Invinity Pro</button>
+                    <button class="filter-btn" data-filter="airpods_max">AirPods Max</button>
+                    <button class="filter-btn" data-filter="airpods_3">AirPods 3</button>
+                </div>
+                <div class="product-grid" id="productGrid">
+                    <div class="product-card" data-category="airpods_pro">
+                        <div class="product-image-wrap">
+                            <img src="image/hexa ijo.png" alt="AirPods Pro">
+                        </div>
+                        <div class="product-body">
+                            <h3 class="product-title">Invinty Pro</h3>
+                            <p class="price">Rp 150.000</p>
+                            <div class="product-actions">
+                                <button class="btn product-btn" data-product-id="pro2">Lihat Detail</button>
+                                <button class="btn add-to-cart-btn" data-product-id="pro2">Tambah ke Keranjang</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="product-card" data-category="airpods_max">
+                        <div class="product-image-wrap">
+                            <img src="image/11.png" alt="AirPods Max">
+                        </div>
+                        <div class="product-body">
+                            <h3 class="product-title">Invinty Max</h3>
+                            <p class="price">Rp 110.000</p>
+                            <div class="product-actions">
+                                <button class="btn product-btn" data-product-id="max">Lihat Detail</button>
+                                <button class="btn add-to-cart-btn" data-product-id="max">Tambah ke Keranjang</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="product-card" data-category="airpods_3">
+                        <div class="product-image-wrap">
+                            <img src="image/12.png" alt="AirPods 3">
+                        </div>
+                        <div class="product-body">
+                            <h3 class="product-title">Invinty Strongest</h3>
+                            <p class="price">Rp 175.000</p>
+                            <div class="product-actions">
+                                <button class="btn product-btn" data-product-id="2rd">Lihat Detail</button>
+                                <button class="btn add-to-cart-btn" data-product-id="2rd">Tambah ke Keranjang</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="comparison-section scroll-animation">
+            <div class="container">
+                <h2>Perbandingan Model</h2>
+                <div class="comparison-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Fitur</th>
+                                <th>Invinity Pro</th>
+                                <th>Invinity Max</th>
+                                <th>Invinity Strongest</th>
+                              
+                            </tr>
+                        </thead>
+                        <tbody>
+                        
+                            <tr>
+                                <td>Mode Transparansi</td>
+                                <td><i class="fas fa-times"></i></td>
+                                <td><i class="fas fa-times"></i></td>
+                                <td><i class="fas fa-check"></i></td>
+                            </tr>
+                            <tr>
+                                <td>Audio Spasial</td>
+                                <td><i class="fas fa-times"></i></td>
+                                <td><i class="fas fa-check"></i></td>
+                                <td><i class="fas fa-check"></i></td>
+                                
+                            </tr>
+                            <tr>
+                                <td>Tahan Air & Keringat</td>
+                                <td><i class="fas fa-times"></i></td>
+                                <td><i class="fas fa-check"></i></td>
+                                <td><i class="fas fa-check"></i></td>
+                                
+                            </tr>
+                            <tr>
+                                <td>Chip</td>
+                                <td>H1</td>
+                                <td>H1</td>
+                                <td>H2</td>
+                                <!-- <td>H1</td> -->
+                            </tr>
+                            <tr>
+                                <td>Daya Tahan Baterai </td>
+                                <td>Hingga 5 jam</td>
+                                <td>Hingga 6 jam</td>
+                                <td>Hingga 6 jam</td>
+                                
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-col">
+                    <h3>EarPhone Store</h3>
+                    <p>Tempat terbaik untuk mendapatkan EarPhone impian Anda.</p>
+                </div>
+                <div class="footer-col">
+                    <h3>Navigasi</h3>
+                    <ul>
+                        <li><a href="index.html">Beranda</a></li>
+                        <li><a href="products.html">Produk</a></li>
+                        <li><a href="about.html">Tentang Kami</a></li>
+                        <li><a href="testimonials.html">Testimoni</a></li>
+                        <li><a href="contact.html">Kontak</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Ikuti Kami</h3>
+                    <div class="social-links">
+                        <a href=https://www.instagram.com/store.infinity999?igsh=aHR3c3FxaGYxdTcz target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <!-- <a href="https://tiktok.com" target="_blank" aria-label="TikTok"><i class="fab fa-tiktok"></i></a> -->
+                    </div>
+                    <div class="share-buttons">
+                        <p>Bagikan Halaman Ini:</p>
+                        <a href="#" class="share-btn" onclick="sharePage('facebook')"><i class="fab fa-facebook"></i></a>
+                        <!-- <a href="#" class="share-btn" onclick="sharePage('twitter')"><i class="fab fa-twitter"></i></a> -->
+                        <a href="https://wa.me/6285697666595" class="share-btn" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h3>Informasi</h3>
+                    <ul>
+                        <li><a href="#">Kebijakan Privasi</a></li>
+                        <li><a href="#">Syarat & Ketentuan</a></li>
+                        <li><a href="#">Garansi & Pengembalian</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Invinity Store. Hak Cipta Dilindungi Undang-Undang.</p>
+            </div>
+        </div>
+    </footer>
+
+    <div id="productDetailModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <div class="modal-body">
+                <div class="modal-image-gallery">
+                    <img id="modalMainImage" src="" alt="Product Image">
+                    <div class="modal-thumbnails" id="modalThumbnails">
+                        </div>
+                </div>
+                <div class="modal-details">
+                    <h3 id="modalProductName"></h3>
+                    <p id="modalProductPrice" class="price"></p>
+                    <p id="modalProductDescription"></p>
+                    <div class="model-options" id="modalModelOptions">
+                        </div>
+                    <button class="btn primary-btn mt-2">Beli Sekarang</button>
+                </div>
+            </div>
+        </div>
+    </div>
+<div id="cartModal" class="modal">
+        <div class="modal-content cart-modal-content">
+            <span class="close-button" id="closeCartModal">×</span>
+            <h2>Keranjang Belanja Anda</h2>
+            <div id="cartItemsContainer" class="cart-items-container">
+                <p id="emptyCartMessage">Keranjang Anda kosong.</p>
+            </div>
+            <div class="cart-summary">
+                <p>Total: <span id="cartTotal">Rp 0</span></p>
+                <button class="btn primary-btn" id="checkoutButton">Checkout Sekarang</button>
+            </div>
+        </div>
+    </div>
+    <script src="js/main.js"></script>
+    <script src="js/animations.js"></script>
+</body>
+</html>
