@@ -5,8 +5,10 @@ document.addEventListener('DOMContentLoaded', () => {
         "pro2": {
             id: "pro2",
             name: "Invinity Pro",
-            price: 149990, // Store price as number for calculations
-            formattedPrice: "Rp 149.990",
+            price: 130000, // Store price as number for calculations
+            formattedPrice: "Rp 130.000",
+            originalPrice: 150000,
+            formattedOriginalPrice: "Rp 150.000",
             description: "Invinity Pro dengan Audio Adaptif, Pembatalan Bising Aktif 2x lebih baik, dan Mode Transparansi yang ditingkatkan. Pengisian MagSafe Case (USB‑C) dengan Speaker dan Loop Tali. Didesain ulang untuk pengalaman suara yang lebih imersif.",
             images: [
                 "image/hexa ijo.png",
@@ -214,7 +216,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (product) {
             modalProductName.textContent = product.name;
-            modalProductPrice.textContent = product.formattedPrice || `Rp ${product.price ? Number(product.price).toLocaleString('id-ID') : '-'}`;
+            modalProductPrice.innerHTML = product.originalPrice ?
+                `<span style="text-decoration: line-through; color: #888;">${product.formattedOriginalPrice}</span> ${product.formattedPrice || `Rp ${product.price ? Number(product.price).toLocaleString('id-ID') : '-'}`}` :
+                (product.formattedPrice || `Rp ${product.price ? Number(product.price).toLocaleString('id-ID') : '-'}`);
             modalProductDescription.textContent = product.description;
 
             // Handle images - for API products, use single image or thumbnail
