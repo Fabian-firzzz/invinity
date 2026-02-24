@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pembayaran Berhasil - INFINITY STORE</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+    <div class="container" style="padding:32px;">
+        <h1 id="title">Status Transaksi</h1>
+        <div id="detail"></div>
+        <a href="index.html" class="btn primary-btn" style="margin-top:16px;display:inline-block;">Kembali ke Beranda</a>
+    </div>
+    <script>
+        const el = document.getElementById('detail');
+        const t = JSON.parse(localStorage.getItem('lastTransaction')) || null;
+        if (!t) {
+            document.getElementById('title').textContent = 'Tidak ada transaksi terbaru.';
+            el.innerHTML = '<p>Anda belum melakukan transaksi.</p>';
+        } else if (t.status === 'PAID') {
+            document.getElementById('title').textContent = 'Pembayaran Berhasil';
+            el.innerHTML = `<p>ID: ${t.id}</p><p>Metode: ${t.method}</p><p>Jumlah: Rp ${t.amount?.toLocaleString('id-ID')||'-'}</p>`;
+        } else {
+            document.getElementById('title').textContent = 'Pembayaran Gagal / Kadaluarsa';
+            el.innerHTML = `<p>Status: ${t.status}</p><p>Waktu: ${t.createdAt}</p>`;
+        }
+    </script>
+</body>
+</html>

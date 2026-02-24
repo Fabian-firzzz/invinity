@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - INFINITY STORE</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Styles are in css/style.css to follow site theme -->
+</head>
+<body>
+    <!-- Header copied from other pages -->
+    <header>
+        <div class="container" style="display: flex; align-items: center; justify-content: space-between; height: 70px;">
+            <div class="logo" style="display: flex; align-items: center;">
+                <a href="index.html" class="logo-link" style="display: flex; align-items: center; gap: 16px; text-decoration: none;">
+                    <img src="image/FOTO LOGO.jpg" alt="Logo" class="logo-img" style="height: 60px; width: 60px; object-fit: cover; border-radius: 10px;">
+                    <span class="logo-text" style="font-size: 2rem; font-weight: 700; color: #6f00ff; line-height: 60px;">INFINITY STORE</span>
+                </a>
+            </div>
+            <nav class="main-nav" id="mainNav">
+                <ul style="display: flex; align-items: center; gap: 24px; margin: 0;">
+                    <li><a href="index.html">Beranda</a></li>
+                    <li><a href="products.html">Produk</a></li>
+                    <li><a href="about.html">Tentang Kami</a></li>
+                    <li><a href="testimonials.html">Testimoni</a></li>
+                    <li><a href="minigame.html">Minigame</a></li>
+                    <li><a href="contact.html">Kontak</a></li>
+                </ul>
+            </nav>
+            <div class="nav-icons" style="display: flex; align-items: center; gap: 16px;">
+                <button id="cartToggle" class="cart-toggle" aria-label="Keranjang Belanja">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span id="cartCount" class="cart-count">0</span>
+                </button>
+                <button id="darkModeToggle" class="dark-mode-toggle" aria-label="Toggle Dark/Light Mode">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </button>
+                <button class="menu-toggle" id="mobileMenuToggle" aria-label="Toggle Menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="checkout-container">
+            <div class="container">
+                <h1>Checkout</h1>
+                <div class="checkout-grid">
+                    <div>
+                        <form id="checkoutForm">
+                            <h3>Alamat Pengiriman</h3>
+                            <div class="form-group">
+                                <label>Nama Lengkap</label>
+                                <input type="text" id="fullName" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Nomor HP</label>
+                                <input type="text" id="phone" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Provinsi</label>
+                                <select id="province" required>
+                                    <option value="">Pilih provinsi</option>
+                                    <option>DKI Jakarta</option>
+                                    <option>Jawa Barat</option>
+                                    <option>Jawa Tengah</option>
+                                    <option>Jawa Timur</option>
+                                    <option value="Lainnya">Lainnya</option>
+                                </select>
+                                <input type="text" id="provinceCustom" placeholder="Masukkan provinsi jika tidak ada" style="display:none;margin-top:8px;">
+                            </div>
+                            <div class="form-group">
+                                <label>Kota/Kabupaten</label>
+                                <select id="city" required>
+                                    <option value="">Pilih kota/kabupaten</option>
+                                    <option>Jakarta Selatan</option>
+                                    <option>Bandung</option>
+                                    <option>Semarang</option>
+                                    <option>Surabaya</option>
+                                    <option value="Lainnya">Lainnya</option>
+                                </select>
+                                <input type="text" id="cityCustom" placeholder="Masukkan kota jika tidak ada" style="display:none;margin-top:8px;">
+                            </div>
+                            <div class="form-group">
+                                <label>Kecamatan</label>
+                                <select id="district" required>
+                                    <option value="">Pilih kecamatan</option>
+                                    <option>Kebayoran Baru</option>
+                                    <option>Setiabudi</option>
+                                    <option>Gajahmungkur</option>
+                                    <option>Wonokromo</option>
+                                    <option value="Lainnya">Lainnya</option>
+                                </select>
+                                <input type="text" id="districtCustom" placeholder="Masukkan kecamatan jika tidak ada" style="display:none;margin-top:8px;">
+                            </div>
+                            <div class="form-group">
+                                <label>Kode Pos</label>
+                                <input type="text" id="postalCode" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Detail Alamat (opsional)</label>
+                                <textarea id="addressDetail" rows="3" placeholder="Blok/RT/RW, Nama Jalan, No Rumah"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Catatan untuk kurir (opsional)</label>
+                                <textarea id="notes" rows="2"></textarea>
+                            </div>
+
+                            <h3>Metode Pembayaran</h3>
+                            <div class="form-group">
+                                <label><input type="radio" name="payment" value="DANA" required> DANA</label><br>
+                                <label><input type="radio" name="payment" value="GoPay"> GoPay</label><br>
+                                <label><input type="radio" name="payment" value="QRIS"> QRIS</label>
+                            </div>
+
+                            <div style="margin-top:16px;">
+                                <button type="submit" class="btn primary-btn">Lanjutkan ke Pembayaran</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div>
+                        <div class="order-summary">
+                            <h3>Ringkasan Pesanan</h3>
+                            <div id="orderItems"></div>
+                            <p>Subtotal: <span id="subtotal">Rp 0</span></p>
+                            <p>Biaya admin (2%): <span id="adminFee">Rp 0</span></p>
+                            <p><strong>Grand Total: <span id="grandTotal">Rp 0</span></strong></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="qrModal" class="qr-modal">
+        <div class="qr-box">
+            <h2 id="qrTitle">Pembayaran</h2>
+            <img id="qrImage" src="" alt="QR Code" style="width:220px;height:220px;margin:8px 0;">
+            <p id="qrAmount" style="font-size:1.1rem;font-weight:700"></p>
+            <p id="qrTimer">05:00</p>
+            <button id="paidButton" class="btn primary-btn">Saya Sudah Bayar</button>
+            <div style="margin-top:8px;"><button id="closeQr" class="btn">Batal</button></div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/checkout.js"></script>
+</body>
+</html>

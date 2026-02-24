@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minigame - Memory Card</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        main { display: flex; align-items: center; justify-content: center; min-height: calc(100vh - 70px); background: linear-gradient(135deg, rgba(111,0,255,0.08), rgba(0,230,230,0.08)); }
+        .game-section { padding: 24px; width: 100%; }
+        .game-container { background: var(--card-bg); padding: 32px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 8px 30px rgba(0,0,0,0.35); max-width: 800px; margin: 0 auto; }
+        .game-header { margin-bottom: 24px; text-align: center; }
+        .game-header h1 { margin: 0 0 8px 0; color: var(--heading-color); }
+        .game-header p { margin: 0; color: var(--text-color); opacity: 0.9; }
+        .mode-selector { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; margin-bottom: 24px; padding: 16px; background: rgba(111,0,255,0.08); border-radius: 8px; border: 1px solid rgba(111,0,255,0.15); }
+        .mode-btn { padding: 12px 16px; border: 2px solid rgba(111,0,255,0.3); border-radius: 8px; background: transparent; color: var(--text-color); font-weight: 600; cursor: pointer; transition: all 0.3s; font-size: 0.95rem; }
+        .mode-btn:hover { border-color: rgba(111,0,255,0.6); background: rgba(111,0,255,0.1); }
+        .mode-btn.active { background: linear-gradient(90deg, #6f00ff, #00e6e6); color: #0d0d1a; border-color: #6f00ff; }
+        .mode-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .difficulty-info { text-align: center; margin-bottom: 16px; padding: 12px; background: rgba(0,230,230,0.1); border-radius: 8px; border-left: 3px solid var(--accent-color); }
+        .difficulty-info p { margin: 4px 0; color: var(--text-color); }
+        .difficulty-info .max-steps { color: var(--accent-color); font-weight: 700; font-size: 1.1rem; }
+        .game-controls { display: flex; gap: 16px; align-items: center; margin: 20px 0; flex-wrap: wrap; background: rgba(111,0,255,0.08); padding: 16px; border-radius: 8px; border: 1px solid rgba(111,0,255,0.15); }
+        .control-item { display: flex; align-items: center; gap: 8px; }
+        .control-item label { color: rgba(255,255,255,0.7); font-size: 0.95rem; }
+        .control-item span { color: var(--accent-color); font-weight: 700; font-size: 1.1rem; }
+        .control-buttons { display: flex; gap: 12px; margin-left: auto; flex-wrap: wrap; }
+        .control-buttons .btn { padding: 10px 14px; font-size: 0.95rem; }
+        .board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; max-width: 680px; margin-top: 20px; }
+        .card { perspective: 1000px; cursor: pointer; }
+        .card-inner { position: relative; width: 100%; padding-top: 100%; transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55); }
+        .card.flipped .card-inner { transform: rotateY(180deg); }
+        .card-face { position: absolute; inset: 0; backface-visibility: hidden; display: flex; align-items: center; justify-content: center; border-radius: 10px; font-size: 2rem; font-weight: 700; user-select: none; }
+        .card-front { background: linear-gradient(135deg, rgba(111,0,255,0.15), rgba(0,230,230,0.15)); border: 2px solid rgba(111,0,255,0.3); color: var(--text-color); }
+        .card-back { background: linear-gradient(135deg, #6f00ff, #00e6e6); color: #fff; transform: rotateY(180deg); box-shadow: 0 4px 12px rgba(111,0,255,0.4); }
+        .card:hover:not(.flipped) .card-front { border-color: rgba(111,0,255,0.6); background: linear-gradient(135deg, rgba(111,0,255,0.25), rgba(0,230,230,0.25)); }
+        .status { color: var(--accent-color); font-weight: 700; }
+        .status.win { color: #00ff7f; }
+        .status.lose { color: #ff6b6b; }
+        .game-locked { position: relative; }
+        .game-locked.disabled { opacity: 0.5; pointer-events: none; }
+        @media (max-width: 768px) { 
+            main { min-height: auto; } 
+            .board { grid-template-columns: repeat(3, 1fr); gap: 12px; } 
+            .mode-selector { grid-template-columns: repeat(2, 1fr); } 
+            .control-buttons { margin-left: 0; width: 100%; } 
+            .game-container { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container" style="display: flex; align-items: center; justify-content: space-between; height: 70px;">
+            <div class="logo" style="display: flex; align-items: center;">
+                <a href="index.html" class="logo-link" style="display: flex; align-items: center; gap: 16px; text-decoration: none;">
+                    <img src="image/FOTO LOGO.jpg" alt="Logo" class="logo-img" style="height: 60px; width: 60px; object-fit: cover; border-radius: 10px;">
+                    <span class="logo-text" style="font-size: 2rem; font-weight: 700; color: #6f00ff; line-height: 60px;">INFINITY STORE</span>
+                </a>
+            </div>
+            <nav class="main-nav" id="mainNav">
+                <ul style="display: flex; align-items: center; gap: 24px; margin: 0;">
+                    <li><a href="index.html">Beranda</a></li>
+                    <li><a href="products.html">Produk</a></li>
+                    <li><a href="about.html">Tentang Kami</a></li>
+                    <li><a href="testimonials.html">Testimoni</a></li>
+                    <li><a href="minigame.html" class="active">Minigame</a></li>
+                    <li><a href="contact.html">Kontak</a></li>
+                </ul>
+            </nav>
+            <div class="nav-icons" style="display: flex; align-items: center; gap: 16px;">
+                <button id="darkModeToggle" class="dark-mode-toggle" aria-label="Toggle Dark/Light Mode">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </button>
+                <button class="menu-toggle" id="mobileMenuToggle" aria-label="Toggle Menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="game-section">
+            <div class="game-container">
+                <div class="game-header">
+                    <h1 class="glow-text">🎮 Memory Card Game</h1>
+                    <p>Cocokkan semua pasang kartu sebelum langkah Anda habis!</p>
+                </div>
+
+                <!-- Mode Selector -->
+                <div id="modeSelector" class="mode-selector">
+                    <button class="mode-btn" data-mode="easy" data-steps="30">
+                        <div>🟢 Easy</div>
+                        <div style="font-size: 0.8rem; opacity: 0.8;">30 langkah</div>
+                    </button>
+                    <button class="mode-btn" data-mode="normal" data-steps="22">
+                        <div>🔵 Normal</div>
+                        <div style="font-size: 0.8rem; opacity: 0.8;">22 langkah</div>
+                    </button>
+                    <button class="mode-btn" data-mode="hard" data-steps="16">
+                        <div>🔴 Hard</div>
+                        <div style="font-size: 0.8rem; opacity: 0.8;">16 langkah</div>
+                    </button>
+                    <button class="mode-btn" data-mode="impossible" data-steps="10">
+                        <div>💀 Impossible</div>
+                        <div style="font-size: 0.8rem; opacity: 0.8;">10 langkah</div>
+                    </button>
+                </div>
+
+                <!-- Difficulty Info -->
+                <div id="difficultyInfo" class="difficulty-info" style="display:none;">
+                    <p>Mode: <span id="modeName" style="color: var(--accent-color); font-weight: 700;"></span></p>
+                    <p>Kesempatan: <span class="max-steps" id="difficultyMaxSteps">-</span> langkah</p>
+                </div>
+
+                <!-- Game Board (Hidden until mode selected) -->
+                <div id="gameBoard" class="game-locked disabled" style="display:none;">
+                    <div class="game-controls">
+                        <div class="control-item"><label>Langkah:</label><span id="stepCount">0</span><label>/ <span id="maxSteps">-</span></label></div>
+                        <div class="control-item"><label>Status:</label><span id="gameStatus" class="status">Siap Mulai</span></div>
+                        <div class="control-buttons">
+                            <button id="resetBtn" class="btn primary-btn">🔄 Reset</button>
+                            <button id="changeModeBtn" class="btn">📋 Ganti Mode</button>
+                            <button id="surrenderBtn" class="btn">🏳️ Menyerah</button>
+                        </div>
+                    </div>
+
+                    <div id="board" class="board"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="js/main.js"></script>
+    <script src="js/minigame.js"></script>
+</body>
+</html>

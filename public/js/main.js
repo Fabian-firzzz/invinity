@@ -359,28 +359,32 @@ document.addEventListener('DOMContentLoaded', () => {
             checkoutButton.style.cursor = 'pointer';
 
             cart.forEach(item => {
-                const product = getProductData(item.productId);
-                if (product) {
-                    const cartItemDiv = document.createElement('div');
-                    cartItemDiv.classList.add('cart-item');
-                    cartItemDiv.dataset.productId = item.productId;
+                // prefer snapshot data stored in cart; fallback to product API if available
+                const product = getProductData(item.productId) || {};
+                const name = item.name || product.name || item.productId;
+                const price = (typeof item.price === 'number') ? item.price : (product.price || 0);
+                const formatted = item.formattedPrice || product.formattedPrice || `Rp ${Number(price).toLocaleString('id-ID')}`;
+                const thumb = item.thumbnail || product.thumbnail || product.image || 'image/default.png';
 
-                    cartItemDiv.innerHTML = `
-                        <img src="${product.thumbnail || product.image || 'image/default.png'}" alt="${product.name}" style="width:48px;height:48px;border-radius:8px;object-fit:cover;"> <!-- GANTI GAMBAR DI SINI -->
-                        <div class="cart-item-details">
-                            <h4>${product.name}</h4>
-                            <p class="price">${product.formattedPrice || `Rp ${product.price ? Number(product.price).toLocaleString('id-ID') : '-'}`}</p>
-                        </div>
-                        <div class="cart-item-quantity">
-                            <button class="quantity-btn decrease-qty" data-id="${item.productId}">-</button>
-                            <input type="number" value="${item.quantity}" min="1" readonly>
-                            <button class="quantity-btn increase-qty" data-id="${item.productId}">+</button>
-                        </div>
-                        <button class="remove-item-btn" data-id="${item.productId}"><i class="fas fa-trash-alt"></i></button>
-                    `;
-                    cartItemsContainer.appendChild(cartItemDiv);
-                    total += product.price * item.quantity;
-                }
+                const cartItemDiv = document.createElement('div');
+                cartItemDiv.classList.add('cart-item');
+                cartItemDiv.dataset.productId = item.productId;
+
+                cartItemDiv.innerHTML = `
+                    <img src="${thumb}" alt="${name}" style="width:48px;height:48px;border-radius:8px;object-fit:cover;"> 
+                    <div class="cart-item-details">
+                        <h4>${name}</h4>
+                        <p class="price">${formatted}</p>
+                    </div>
+                    <div class="cart-item-quantity">
+                        <button class="quantity-btn decrease-qty" data-id="${item.productId}">-</button>
+                        <input type="number" value="${item.quantity}" min="1" readonly>
+                        <button class="quantity-btn increase-qty" data-id="${item.productId}">+</button>
+                    </div>
+                    <button class="remove-item-btn" data-id="${item.productId}"><i class="fas fa-trash-alt"></i></button>
+                `;
+                cartItemsContainer.appendChild(cartItemDiv);
+                total += price * item.quantity;
             });
         }
 
@@ -401,13 +405,24 @@ document.addEventListener('click', function(e) {
 
     function addToCart(productId, quantity = 1) {
         const existingItemIndex = cart.findIndex(item => item.productId === productId);
+        // Get product data snapshot if available
+        const product = getProductData(productId) || {};
+        const snapshot = {
+            productId,
+            quantity,
+            name: product.name || productId,
+            price: product.price || 0,
+            formattedPrice: product.formattedPrice || (product.price ? `Rp ${Number(product.price).toLocaleString('id-ID')}` : '-'),
+            thumbnail: product.thumbnail || product.image || 'image/default.png'
+        };
+
         if (existingItemIndex > -1) {
             cart[existingItemIndex].quantity += quantity;
         } else {
-            cart.push({ productId, quantity });
+            cart.push(snapshot);
         }
         saveCart();
-        alert(`"${productsData[productId].name}" ditambahkan ke keranjang!`);
+        alert(`"${snapshot.name}" ditambahkan ke keranjang!`);
     }
 
     function updateQuantity(productId, change) {
@@ -475,11 +490,8 @@ document.addEventListener('click', function(e) {
         if (checkoutButton) {
             checkoutButton.addEventListener('click', () => {
                 if (cart.length > 0) {
-                    // alert(' Pesanan Anda telah diterima!\nTotal: ' + cartTotalElement.textContent);
-                    cart = []; // Clear cart after checkout
-                    saveCart(); // Update localStorage and display
-                    cartModal.style.display = 'none'; // Close cart modal
-                    document.body.style.overflow = 'auto';
+                    // Redirect to checkout page — cart is stored in localStorage
+                    window.location.href = 'checkout.html';
                 } else {
                     alert('Keranjang Anda kosong. Tambahkan produk sebelum checkout.');
                 }
