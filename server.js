@@ -16,10 +16,10 @@ let snap = new midtransClient.Snap({
 
 // === Setup koneksi MySQL (promise-based) ===
 const pool = mysql.createPool({
-  host: 'localhost',
-  user: 'root',
-  password: '',
-  database: 'earpods_db',
+  host: process.env.DB_HOST || 'localhost',
+  user: process.env.DB_USER || 'root',
+  password: process.env.DB_PASSWORD || '',
+  database: process.env.DB_NAME || 'earpods_db',
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0
@@ -385,6 +385,10 @@ const fallbackRoute = (req, res) => {
 
 app.get(/^\/(?!api)(?!\.\.).*$/, fallbackRoute);
 
-// === Jalankan server ===
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Server berjalan di http://localhost:${PORT}`));
+// === Jalankan server (Hanya jika tidak di Vercel) ===
+if (process.env.NODE_ENV !== 'production') {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => console.log(`🚀 Server berjalan di http://localhost:${PORT}`));
+}
+
+module.exports = app;
