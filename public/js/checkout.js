@@ -89,7 +89,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const postalCode = document.getElementById('postalCode').value.trim();
         const addressDetail = document.getElementById('addressDetail').value.trim(); // now optional
         const notes = document.getElementById('notes').value.trim();
-        const payment = document.querySelector('input[name="payment"]:checked');
 
         // Required checks: fullName, phone, province, city, district, postalCode
         if (!fullName || !phone || !province || !city || !district || !postalCode) {
@@ -98,7 +97,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (!onlyDigits(phone)) { alert('Nomor HP harus angka saja.'); return; }
         if (!onlyDigits(postalCode)) { alert('Kode pos harus angka saja.'); return; }
-        if (!payment) { alert('Pilih metode pembayaran.'); return; }
 
         // prepare order details
         const cart = JSON.parse(localStorage.getItem('airpodsCart')) || [];
@@ -115,79 +113,61 @@ document.addEventListener('DOMContentLoaded', () => {
         const admin = Math.round(subtotal * 0.02);
         const grand = subtotal + admin;
 
-        // If payment method is QR based, show QR modal simulation
-        if (['DANA','GoPay','QRIS'].includes(payment.value)) {
-            const paymentId = 'SIMUL-'+Math.random().toString(36).slice(2,10).toUpperCase();
-            const qrData = `${payment.value}|${paymentId}|${grand}`;
-            // Use external QR generator for preview (dummy)
-            qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(qrData)}`;
-            qrAmount.textContent = `Silakan lakukan pembayaran sesuai nominal: ${new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',minimumFractionDigits:0}).format(grand)}`;
-            showQrCountdown(300); // 5 minutes
-            qrModal.style.display = 'flex';
+        // Buat payload untuk dikirim ke backend
+        const requestData = {
+            fullName, phone, province, city, district, postalCode, addressDetail, notes,
+            paymentMethod: 'Midtrans Snap',
+            cart: cart
+        };
 
-            // populate order summary and buyer info into modal (create if not present)
-            let summaryEl = document.getElementById('qrOrderSummary');
-            if (!summaryEl) {
-                summaryEl = document.createElement('div');
-                summaryEl.id = 'qrOrderSummary';
-                qrImage.parentNode.insertBefore(summaryEl, qrImage.nextSibling);
+        // Ganti tombol submit dengan loading state
+        const submitBtn = document.querySelector('#checkoutForm button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Memproses...';
+
+        // Panggil API checkout
+        fetch('/api/checkout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestData)
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success && data.token) {
+                // Kosongkan keranjang
+                localStorage.removeItem('airpodsCart');
+
+                // Tampilkan Midtrans Snap Popup
+                window.snap.pay(data.token, {
+                    onSuccess: function(result){
+                        window.location.href = `order-status.html?id=${data.order_id}`;
+                    },
+                    onPending: function(result){
+                        window.location.href = `order-status.html?id=${data.order_id}`;
+                    },
+                    onError: function(result){
+                        alert('Pembayaran gagal!');
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = originalText;
+                    },
+                    onClose: function(){
+                        alert('Anda menutup popup sebelum menyelesaikan pembayaran.');
+                        window.location.href = `order-status.html?id=${data.order_id}`;
+                    }
+                });
+            } else {
+                alert('Gagal membuat transaksi: ' + (data.error || 'Unknown error'));
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
             }
-            summaryEl.innerHTML = '<strong>Ringkasan Pesanan:</strong>';
-            const ul = document.createElement('ul');
-            const cartForModal = JSON.parse(localStorage.getItem('airpodsCart')) || [];
-            cartForModal.forEach(it => {
-                const name = it.name || (productsMap[it.productId] && productsMap[it.productId].name) || it.productId;
-                const price = (typeof it.price === 'number') ? it.price : ((productsMap[it.productId] && productsMap[it.productId].price) || 0);
-                const qty = it.quantity || 1;
-                const li = document.createElement('li');
-                li.textContent = `${name} x ${qty} — ${new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',minimumFractionDigits:0}).format(price*qty)}`;
-                ul.appendChild(li);
-            });
-            const totLi = document.createElement('li');
-            totLi.style.listStyle = 'none';
-            totLi.style.fontWeight = '700'; 
-            totLi.style.marginTop = '8px';
-            totLi.style.paddingTop = '8px';
-            totLi.style.borderTop = '1px solid rgba(255,255,255,0.15)';
-            totLi.style.color = 'var(--accent-color)';
-            totLi.textContent = `Grand Total: ${new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',minimumFractionDigits:0}).format(grand)}`;
-            ul.appendChild(totLi);
-            summaryEl.appendChild(ul);
-
-            // buyer info
-            let buyerEl = document.getElementById('qrBuyerInfo');
-            if (!buyerEl) {
-                buyerEl = document.createElement('div');
-                buyerEl.id = 'qrBuyerInfo';
-                qrImage.parentNode.insertBefore(buyerEl, summaryEl.nextSibling);
-            }
-            buyerEl.innerHTML = `<strong>Data Pemesan:</strong><div><strong>Nama:</strong> ${fullName}</div><div><strong>HP:</strong> ${phone}</div><div><strong>Lokasi:</strong> ${province}, ${city}, ${district}</div><div><strong>Kode Pos:</strong> ${postalCode}</div>${addressDetail ? `<div><strong>Detail:</strong> ${addressDetail}</div>` : ''}<div><strong>Catatan:</strong> ${notes || '-'}</div>`;
-
-            // paid button handler
-            paidButton.onclick = () => {
-                paidButton.disabled = true; paidButton.textContent = 'Memverifikasi...';
-                setTimeout(() => {
-                    // mark transaction as PAID
-                    const transaction = {
-                        id: paymentId,
-                        status: 'PAID',
-                        method: payment.value,
-                        amount: grand,
-                        items: cart,
-                        address: { fullName, phone, province, city, district, postalCode, addressDetail, notes },
-                        createdAt: new Date().toISOString()
-                    };
-                    localStorage.setItem('lastTransaction', JSON.stringify(transaction));
-                    // clear cart
-                    localStorage.removeItem('airpodsCart');
-                    // close modal and redirect to success
-                    qrModal.style.display = 'none';
-                    window.location.href = 'checkout-success.html';
-                }, 2200);
-            };
-        } else {
-            alert('Metode pembayaran tidak dikenali.');
-        }
+        })
+        .catch(err => {
+            console.error('Checkout error:', err);
+            alert('Terjadi kesalahan saat memproses checkout.');
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+        });
     });
 
     closeQr.addEventListener('click', () => {

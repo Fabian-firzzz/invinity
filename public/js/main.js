@@ -1,61 +1,35 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- Global Product Data (Simulasi Database) ---
-    // This data will be used across all pages for product details and cart operations
-    const productsData = {
-        "pro2": {
-            id: "pro2",
-            name: "Invinity Pro",
-            price: 130000, // Store price as number for calculations
-            formattedPrice: "Rp 130.000",
-            originalPrice: 150000,
-            formattedOriginalPrice: "Rp 150.000",
-            description: "Invinity Pro dengan Audio Adaptif, Pembatalan Bising Aktif 2x lebih baik, dan Mode Transparansi yang ditingkatkan. Pengisian MagSafe Case (USB‑C) dengan Speaker dan Loop Tali. Didesain ulang untuk pengalaman suara yang lebih imersif.",
-            images: [
-                "image/hexa ijo.png",
-                "image/hexa pink.png",
-                "image/hexa biru.png",
-            ],
-            thumbnail: "image/hexa item.png", // Main image for cart/display
-            options: [, "Sky Blue", "Pink", "Green"]
-        },
-        "max": {
-            id: "max",
-            name: "Invinity Max",
-            price: 110800,
-            formattedPrice: "Rp 110.800",
-            description: "Invinity Max menghadirkan pengalaman mendengarkan personal secara menyeluruh. Pembatalan Bising Aktifnya memblokir suara dari luar, sementara Mode Transparansi membiarkan suara masuk. Audio spasial dinamis menghadirkan suara seperti di bioskop. Desain premium dengan bantalan telinga busa memori.",
-            images: [
-                "image/11.png",
-            ],
-            thumbnail: "image/11.png",
-        },
-        "2rd": {
-            id: "2rd",
-            name: "Invinity Strongest",
-            price: 175000,
-            formattedPrice: "Rp 175.000",
-            description: "Invinity Strongest memiliki Audio Spasial Personalisasi dengan pelacakan kepala dinamis untuk menempatkan suara di sekitar Anda. Tahan air dan keringat, dengan daya tahan baterai hingga 6 jam mendengarkan. Desain berkontur baru untuk kenyamanan sepanjang hari.",
-            images: [
-                "image/12.png",
-                "image/13.png",
-            ],
-            thumbnail: "image/12.png",
-            options: ["Dengan Casger Pengisian MagSafe"]
-        },
-        "2nd": {
-            id: "2nd",
-            name: "AirPods (Generasi Ke-2)",
-            price: 1999000,
-            formattedPrice: "Rp 1.999.000",
-            description: "AirPods Generasi ke-2 menghadirkan pengalaman audio nirkabel yang ajaib. Hanya perlu mengeluarkannya, dan siap digunakan dengan semua perangkat Anda. Letakkan di telinga dan AirPods langsung terhubung.",
-            images: [
-                "images/products/airpods_2.png",
-                "images/products/airpods_2_case.png"
-            ],
-            thumbnail: "image.png",
-            options: ["Dengan Casing Pengisian Lightning"]
-        },
-    };
+    // --- Product Data Cache (loaded from API) ---
+    // Semua data produk diambil dari /api/products, BUKAN hardcoded
+    let productsCache = {};
+
+    // Load produk dari API dan cache
+    async function loadProducts() {
+        try {
+            const res = await fetch('/api/products');
+            const products = await res.json();
+            // Simpan ke cache sebagai object {id: product}
+            products.forEach(p => { productsCache[p.id] = p; });
+            // Simpan juga sebagai array global untuk kompatibilitas
+            window.apiProducts = products;
+            return products;
+        } catch (err) {
+            console.error('Gagal memuat produk dari API:', err);
+            return [];
+        }
+    }
+
+    // Function to get product data from cache
+    function getProductData(productId) {
+        if (productsCache[productId]) {
+            return productsCache[productId];
+        }
+        // Fallback: cek window.apiProducts array
+        if (window.apiProducts && window.apiProducts.length > 0) {
+            return window.apiProducts.find(p => p.id === productId);
+        }
+        return null;
+    }
 
 
     // --- Mobile Menu Toggle ---
@@ -68,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
             mobileMenuToggle.querySelector('i').classList.toggle('fa-bars');
             mobileMenuToggle.querySelector('i').classList.toggle('fa-times');
             // Close cart modal if open when opening mobile menu
-            if (cartModal.style.display === 'flex') {
+            if (cartModal && cartModal.style.display === 'flex') {
                 cartModal.style.display = 'none';
                 document.body.style.overflow = 'auto';
             }
@@ -197,19 +171,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalModelOptions = document.getElementById('modalModelOptions');
     const addToCartButton = productDetailModal ? productDetailModal.querySelector('.primary-btn') : null; // "Beli Sekarang" button in modal
 
-    // Function to get product data from either static data or API data
-    function getProductData(productId) {
-        // First check static productsData
-        if (productsData[productId]) {
-            return productsData[productId];
-        }
-        // Then check dynamic API products
-        if (window.apiProducts && window.apiProducts.length > 0) {
-            return window.apiProducts.find(p => p.id === productId);
-        }
-        return null;
-    }
-
     // Function to open product detail modal
     function openProductDetail(productId) {
         const product = getProductData(productId);
@@ -221,7 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 (product.formattedPrice || `Rp ${product.price ? Number(product.price).toLocaleString('id-ID') : '-'}`);
             modalProductDescription.textContent = product.description;
 
-            // Handle images - for API products, use single image or thumbnail
+            // Handle images - API now always returns images array
             const images = product.images || [product.image || product.thumbnail || 'image/default.png'];
             modalMainImage.src = images[0];
             modalMainImage.alt = product.name;
@@ -254,7 +215,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     optionBtn.addEventListener('click', () => {
                         modalModelOptions.querySelectorAll('.model-option-btn').forEach(btn => btn.classList.remove('active'));
                         optionBtn.classList.add('active');
-                        // You could potentially update the displayed product name/price based on option here
                     });
                     modalModelOptions.appendChild(optionBtn);
                 });
@@ -264,10 +224,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Set up Add to Cart button for this product
             if (addToCartButton) {
-                addToCartButton.textContent = "Tambahkan ke Keranjang"; // Change text from "Beli Sekarang"
+                addToCartButton.textContent = "Tambahkan ke Keranjang";
                 addToCartButton.onclick = () => {
-                    addToCart(product.id, 1); // Add 1 quantity of this product
-                    productDetailModal.style.display = 'none'; // Close modal after adding
+                    addToCart(product.id, 1);
+                    productDetailModal.style.display = 'none';
                     document.body.style.overflow = 'auto';
                 };
             }
@@ -339,7 +299,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }).format(amount);
     }
 
-    // === updateCartDisplay MULAI ===
+    // === updateCartDisplay ===
     function updateCartDisplay() {
         cartItemsContainer.innerHTML = '';
         let total = 0;
@@ -359,7 +319,7 @@ document.addEventListener('DOMContentLoaded', () => {
             checkoutButton.style.cursor = 'pointer';
 
             cart.forEach(item => {
-                // prefer snapshot data stored in cart; fallback to product API if available
+                // prefer snapshot data stored in cart; fallback to product cache
                 const product = getProductData(item.productId) || {};
                 const name = item.name || product.name || item.productId;
                 const price = (typeof item.price === 'number') ? item.price : (product.price || 0);
@@ -391,21 +351,20 @@ document.addEventListener('DOMContentLoaded', () => {
         cartTotalElement.textContent = formatRupiah(total);
         updateCartCount();
     }
-    // === updateCartDisplay SELESAI ===
 
-
-document.addEventListener('click', function(e) {
-    if (e.target.classList.contains('add-to-cart-btn')) {
-        const productId = e.target.dataset.productId;
-        if (productId && productsData[productId]) {
-            addToCart(productId, 1);
+    // --- Add to Cart from product cards (event delegation) ---
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('add-to-cart-btn')) {
+            const productId = e.target.dataset.productId;
+            if (productId) {
+                addToCart(productId, 1);
+            }
         }
-    }
-});
+    });
 
     function addToCart(productId, quantity = 1) {
         const existingItemIndex = cart.findIndex(item => item.productId === productId);
-        // Get product data snapshot if available
+        // Get product data snapshot from cache
         const product = getProductData(productId) || {};
         const snapshot = {
             productId,
@@ -451,10 +410,12 @@ document.addEventListener('click', function(e) {
             if (productDetailModal && productDetailModal.style.display === 'flex') {
                 productDetailModal.style.display = 'none';
             }
-            if (mainNav.classList.contains('active')) { // Close mobile menu if open
+            if (mainNav && mainNav.classList.contains('active')) { // Close mobile menu if open
                 mainNav.classList.remove('active');
-                mobileMenuToggle.querySelector('i').classList.remove('fa-times');
-                mobileMenuToggle.querySelector('i').classList.add('fa-bars');
+                if (mobileMenuToggle) {
+                    mobileMenuToggle.querySelector('i').classList.remove('fa-times');
+                    mobileMenuToggle.querySelector('i').classList.add('fa-bars');
+                }
             }
         });
 
@@ -499,9 +460,116 @@ document.addEventListener('click', function(e) {
         }
     }
 
+    // --- Render produk di homepage (#product-list) ---
+    function renderHomepageProducts(products) {
+        const list = document.getElementById('product-list');
+        if (!list) return;
 
-    // Initial cart display on page load
-    updateCartDisplay();
+        list.innerHTML = products.map(p => {
+            const imgSrc = p.image || p.thumbnail || 'image/default.png';
+            const priceFormatted = p.formattedPrice || `Rp ${p.price ? Number(p.price).toLocaleString('id-ID') : '-'}`;
+            const discountBadge = p.originalPrice ? `
+                <div class="discount-badge" style="background: linear-gradient(45deg, #ff6b6b, #ee5a52); color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.8em; font-weight: bold; margin-bottom: 4px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    Diskon ${Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100)}% - Hemat Sekarang!
+                </div>
+            ` : '';
+            return `
+            <div class="product-card" data-category="${p.category || ''}">
+                <div class="product-image-wrap">
+                  <img src="${imgSrc}" alt="${p.name}">
+                </div>
+                <div class="product-body">
+                    <h3 class="product-title">${p.name}</h3>
+                    ${discountBadge}
+                    <p class="price">
+                        ${p.originalPrice ? `<span style="text-decoration: line-through; color: #888;">${p.formattedOriginalPrice}</span> ` : ''}
+                        ${priceFormatted}
+                    </p>
+                    <div class="product-actions">
+                        <button class="btn primary-btn" onclick="window.location.href='products.html'">Pergi ke Produk</button>
+                    </div>
+                </div>
+            </div>
+            `;
+        }).join('');
+    }
+
+    // --- Render produk di halaman products.html (#productGrid) ---
+    function renderProductsPage(products) {
+        const grid = document.getElementById('productGrid');
+        if (!grid) return;
+
+        grid.innerHTML = products.map(p => {
+            const imgSrc = p.image || p.thumbnail || 'image/default.png';
+            const priceFormatted = p.formattedPrice || `Rp ${p.price ? Number(p.price).toLocaleString('id-ID') : '-'}`;
+            return `
+            <div class="product-card" data-category="${p.category || ''}">
+                <div class="product-image-wrap">
+                    <img src="${imgSrc}" alt="${p.name}">
+                </div>
+                <div class="product-body">
+                    <h3 class="product-title">${p.name}</h3>
+                    <p class="price">
+                        ${p.originalPrice ? `<span style="text-decoration: line-through; color: #888;">${p.formattedOriginalPrice}</span> ` : ''}
+                        ${priceFormatted}
+                    </p>
+                    <div class="product-actions">
+                        <button class="btn product-btn" data-product-id="${p.id}">Lihat Detail</button>
+                        <button class="btn add-to-cart-btn" data-product-id="${p.id}">Tambah ke Keranjang</button>
+                    </div>
+                </div>
+            </div>
+            `;
+        }).join('');
+    }
+
+    // --- Render filter kategori dari API ---
+    async function renderCategoryFilters() {
+        const filterContainer = document.querySelector('.product-filter');
+        if (!filterContainer) return;
+
+        try {
+            const res = await fetch('/api/categories');
+            const categories = await res.json();
+
+            filterContainer.innerHTML = '<button class="filter-btn active" data-filter="all">Semua</button>';
+            categories.forEach(cat => {
+                filterContainer.innerHTML += `<button class="filter-btn" data-filter="${cat.slug}">${cat.name}</button>`;
+            });
+
+            // Re-attach filter event listeners
+            filterContainer.querySelectorAll('.filter-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const filter = button.dataset.filter;
+                    filterContainer.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+
+                    document.querySelectorAll('.product-card').forEach(card => {
+                        const category = card.dataset.category;
+                        if (filter === 'all' || category === filter) {
+                            card.style.display = 'flex';
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
+                });
+            });
+        } catch (err) {
+            console.error('Gagal memuat kategori:', err);
+        }
+    }
+
+    // --- Initialize: Load products and render ---
+    loadProducts().then(products => {
+        // Render homepage products
+        renderHomepageProducts(products);
+        // Render products page
+        renderProductsPage(products);
+        // Render category filters
+        renderCategoryFilters();
+        // Initial cart display
+        updateCartDisplay();
+    });
 
 
     // --- Form Validation (Contact Form - only on contact.html) ---
@@ -537,7 +605,7 @@ document.addEventListener('click', function(e) {
         });
     }
 
-    // --- Product Filtering (only on products.html) ---
+    // --- Product Filtering (legacy - kept for pages that load statically) ---
     const filterButtons = document.querySelectorAll('.filter-btn');
     const productGrid = document.getElementById('productGrid');
 

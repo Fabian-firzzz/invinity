@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Status Pesanan - INFINITY STORE</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .status-container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 32px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-weight: bold;
+            margin: 16px 0;
+            font-size: 1.2rem;
+        }
+        .status-pending { background: #f39c12; color: #fff; }
+        .status-settlement { background: #2ecc71; color: #fff; }
+        .status-expire, .status-cancel { background: #e74c3c; color: #fff; }
+        .order-detail {
+            text-align: left;
+            margin-top: 24px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 16px;
+            border-radius: 8px;
+        }
+        .item-list {
+            list-style: none;
+            padding: 0;
+            margin: 16px 0 0 0;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 16px;
+        }
+        .item-list li {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        .loader {
+            border: 4px solid rgba(255,255,255,0.1);
+            border-top: 4px solid #6f00ff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container" style="display: flex; align-items: center; justify-content: space-between; height: 70px;">
+            <div class="logo" style="display: flex; align-items: center;">
+                <a href="index.html" class="logo-link" style="display: flex; align-items: center; gap: 16px; text-decoration: none;">
+                    <img src="image/FOTO LOGO.jpg" alt="Logo" class="logo-img" style="height: 60px; width: 60px; object-fit: cover; border-radius: 10px;">
+                    <span class="logo-text" style="font-size: 2rem; font-weight: 700; color: #6f00ff; line-height: 60px;">INFINITY STORE</span>
+                </a>
+            </div>
+            <nav class="main-nav" id="mainNav">
+                <ul style="display: flex; align-items: center; gap: 24px; margin: 0;">
+                    <li><a href="index.html">Beranda</a></li>
+                    <li><a href="products.html">Produk</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main style="min-height: 70vh;">
+        <section class="container">
+            <div id="statusContent" class="status-container">
+                <div class="loader" id="loader"></div>
+                <h2 id="statusTitle">Memuat status pesanan...</h2>
+                <div id="statusResult" style="display: none;">
+                    <p>Order ID: <strong id="displayOrderId"></strong></p>
+                    <div id="statusBadge" class="status-badge"></div>
+                    
+                    <div class="order-detail">
+                        <h3>Detail Pemesan</h3>
+                        <p><strong>Nama:</strong> <span id="customerName"></span></p>
+                        <p><strong>Alamat:</strong> <span id="customerAddress"></span></p>
+                        
+                        <ul class="item-list" id="orderItemsList"></ul>
+                        <div style="display: flex; justify-content: space-between; margin-top: 16px; font-weight: bold; font-size: 1.1rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 16px;">
+                            <span>Total Pembayaran</span>
+                            <span id="grandTotal"></span>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 24px;">
+                        <a href="index.html" class="btn primary-btn" style="text-decoration:none;">Kembali ke Beranda</a>
+                        <button id="payAgainBtn" class="btn" style="display:none; margin-left: 10px;">Lanjutkan Pembayaran</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="Mid-client-nLEY047RxYhsrxGj"></script>
+    <script src="js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const orderId = urlParams.get('id') || urlParams.get('order_id');
+            
+            if (!orderId) {
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('statusTitle').textContent = 'Order ID tidak ditemukan';
+                return;
+            }
+
+            function formatRupiah(amount) {
+                return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
+            }
+
+            function loadStatus() {
+                fetch(`/api/orders/${orderId}`)
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.error) throw new Error(data.error);
+                        
+                        document.getElementById('loader').style.display = 'none';
+                        document.getElementById('statusTitle').textContent = 'Detail Pesanan';
+                        document.getElementById('statusResult').style.display = 'block';
+                        
+                        const order = data.order;
+                        document.getElementById('displayOrderId').textContent = order.order_id;
+                        document.getElementById('customerName').textContent = order.customer_name;
+                        document.getElementById('customerAddress').textContent = `${order.address_detail || ''}, ${order.district}, ${order.city}, ${order.province} ${order.postal_code}`;
+                        document.getElementById('grandTotal').textContent = formatRupiah(order.grand_total);
+                        
+                        const badge = document.getElementById('statusBadge');
+                        const status = order.status.toLowerCase();
+                        let statusText = 'Menunggu Pembayaran';
+                        badge.className = 'status-badge';
+                        
+                        const payAgainBtn = document.getElementById('payAgainBtn');
+                        payAgainBtn.style.display = 'none';
+
+                        if (status === 'pending') {
+                            badge.classList.add('status-pending');
+                            statusText = '⏳ Menunggu Pembayaran';
+                            if (order.snap_token) {
+                                payAgainBtn.style.display = 'inline-block';
+                                payAgainBtn.onclick = () => {
+                                    window.snap.pay(order.snap_token);
+                                };
+                            }
+                        } else if (status === 'settlement') {
+                            badge.classList.add('status-settlement');
+                            statusText = '✅ Pembayaran Berhasil';
+                        } else {
+                            badge.classList.add('status-expire');
+                            statusText = '❌ Pesanan Dibatalkan / Kadaluarsa';
+                        }
+                        badge.textContent = statusText;
+
+                        const ul = document.getElementById('orderItemsList');
+                        ul.innerHTML = '';
+                        data.items.forEach(item => {
+                            const li = document.createElement('li');
+                            li.innerHTML = `<span>${item.product_name} x ${item.quantity}</span> <span>${formatRupiah(item.price * item.quantity)}</span>`;
+                            ul.appendChild(li);
+                        });
+                        
+                        // Admin fee
+                        if (order.admin_fee > 0) {
+                            const li = document.createElement('li');
+                            li.innerHTML = `<span>Biaya Admin</span> <span>${formatRupiah(order.admin_fee)}</span>`;
+                            ul.appendChild(li);
+                        }
+                    })
+                    .catch(err => {
+                        document.getElementById('loader').style.display = 'none';
+                        document.getElementById('statusTitle').textContent = 'Error: ' + err.message;
+                    });
+            }
+
+            loadStatus();
+            
+            // Poll status if pending
+            setInterval(() => {
+                const badge = document.getElementById('statusBadge');
+                if (badge.classList.contains('status-pending')) {
+                    loadStatus();
+                }
+            }, 5000);
+        });
+    </script>
+</body>
+</html>
