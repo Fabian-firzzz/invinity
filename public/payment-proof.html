@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Bukti Pembayaran - INFINITY STORE</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .payment-proof-container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+        }
+        .payment-proof-container h1 { font-size: 1.8rem; margin-bottom: 10px; }
+        .payment-proof-container p { color: #ccc; line-height: 1.6; margin-bottom: 20px; }
+        
+        .order-info {
+            background: rgba(111,0,255,0.1);
+            border: 1px solid rgba(111,0,255,0.3);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            text-align: left;
+        }
+        .order-info p { margin: 8px 0; }
+        .order-info strong { color: #6f00ff; }
+        
+        .total-amount {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #6f00ff;
+            margin: 15px 0;
+        }
+        
+        .upload-section {
+            background: rgba(255,255,255,0.03);
+            border: 2px dashed rgba(111,0,255,0.5);
+            border-radius: 10px;
+            padding: 30px;
+            margin: 25px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .upload-section:hover {
+            background: rgba(111,0,255,0.1);
+            border-color: #6f00ff;
+        }
+        .upload-section i { font-size: 2.5rem; color: #6f00ff; margin-bottom: 10px; }
+        .upload-section p { margin: 5px 0; }
+        .upload-section input[type="file"] { display: none; }
+        
+        .file-preview {
+            margin: 20px 0;
+            background: rgba(255,255,255,0.05);
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+        .file-preview img { max-width: 100%; border-radius: 6px; }
+        .file-preview.show { display: block; }
+        
+        .form-group {
+            text-align: left;
+            margin: 15px 0;
+        }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 500; }
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            padding: 10px;
+            border-radius: 6px;
+            font-family: 'Inter', sans-serif;
+        }
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: rgba(255,255,255,0.5);
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+        .btn-submit {
+            flex: 1;
+            background: #6f00ff;
+            color: #fff;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .btn-submit:hover { background: #5a00dd; }
+        .btn-submit:disabled { background: rgba(111,0,255,0.3); cursor: not-allowed; }
+        
+        .btn-cancel {
+            flex: 1;
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .success-message {
+            background: rgba(46,204,113,0.1);
+            border: 1px solid rgba(46,204,113,0.3);
+            color: #2ecc71;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: none;
+        }
+        .success-message.show { display: block; }
+        
+        .error-message {
+            background: rgba(231,76,60,0.1);
+            border: 1px solid rgba(231,76,60,0.3);
+            color: #e74c3c;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: none;
+        }
+        .error-message.show { display: block; }
+        
+        .info-box {
+            background: rgba(52,152,219,0.1);
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        .info-box strong { color: #3498db; }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container" style="display: flex; align-items: center; justify-content: space-between; height: 70px;">
+            <div class="logo" style="display: flex; align-items: center;">
+                <a href="index.html" class="logo-link" style="display: flex; align-items: center; gap: 16px; text-decoration: none;">
+                    <img src="image/FOTO LOGO.jpg" alt="Logo" class="logo-img" style="height: 60px; width: 60px; object-fit: cover; border-radius: 10px;">
+                    <span class="logo-text" style="font-size: 2rem; font-weight: 700; color: #6f00ff; line-height: 60px;">INFINITY STORE</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="container">
+            <div class="payment-proof-container">
+                <div class="success-message" id="successMsg">
+                    ✅ Bukti pembayaran berhasil diunggah! Pesanan Anda sedang diverifikasi oleh admin.
+                </div>
+                
+                <div class="error-message" id="errorMsg"></div>
+
+                <h1>📸 Upload Bukti Pembayaran</h1>
+                <p>Silakan upload screenshot atau foto bukti transfer Anda untuk memverifikasi pembayaran</p>
+
+                <div class="order-info">
+                    <p><strong>Order ID:</strong> <span id="orderId">-</span></p>
+                    <p><strong>Nama:</strong> <span id="customerName">-</span></p>
+                    <p><strong>Tanggal:</strong> <span id="orderDate">-</span></p>
+                    <div class="total-amount" id="totalAmount">Rp 0</div>
+                </div>
+
+                <div class="info-box">
+                    <strong>💡 Informasi Penting:</strong><br>
+                    • Upload bukti transfer (screenshot dari bank/e-wallet Anda)<br>
+                    • Pastikan terlihat jelas nomor pesanan atau nominal<br>
+                    • File harus berformat JPG, PNG, atau WebP (max 5MB)<br>
+                    • Admin akan memverifikasi dalam 1-2 jam kerja
+                </div>
+
+                <form id="paymentProofForm">
+                    <div class="upload-section" id="uploadBox" onclick="document.getElementById('proofFile').click()">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p style="font-weight: 600;">Klik atau Drag File di Sini</p>
+                        <p style="font-size: 0.9rem; opacity: 0.7;">JPG, PNG, WebP (Max 5MB)</p>
+                        <input type="file" id="proofFile" accept="image/*" onchange="handleFileSelect(event)">
+                    </div>
+
+                    <div class="file-preview" id="filePreview">
+                        <p style="margin-bottom: 10px; font-weight: 500;">Preview:</p>
+                        <img id="previewImg" alt="Preview">
+                        <button type="button" onclick="clearFile()" style="width: 100%; margin-top: 10px; background: rgba(255,255,255,0.1); color: #fff; border: none; padding: 8px; border-radius: 6px; cursor: pointer;">Ubah File</button>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Catatan (Opsional)</label>
+                        <textarea id="notes" placeholder="Contoh: Sudah transfer dari BCA ke rekening admin..." rows="3"></textarea>
+                    </div>
+
+                    <div class="button-group">
+                        <button type="submit" class="btn-submit" id="submitBtn">✅ Kirim Bukti Pembayaran</button>
+                        <a href="order-status.html" class="btn-cancel" id="cancelBtn">Batal</a>
+                    </div>
+                </form>
+
+                <p style="margin-top: 20px; font-size: 0.9rem; opacity: 0.7;">
+                    Atau klik <a href="#" onclick="goToOrderStatus()" style="color: #6f00ff;">di sini</a> untuk lihat status pesanan Anda
+                </p>
+            </div>
+        </section>
+    </main>
+
+    <script src="js/main.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const orderId = urlParams.get('id');
+        let selectedFile = null;
+
+        if (!orderId) {
+            document.body.innerHTML = '<div class="container" style="text-align: center; padding: 40px;"><p>Order ID tidak ditemukan</p></div>';
+        } else {
+            document.getElementById('cancelBtn').href = `order-status.html?id=${orderId}`;
+            loadOrderInfo();
+        }
+
+        async function loadOrderInfo() {
+            try {
+                const res = await fetch(`/api/orders/${orderId}`);
+                const data = await res.json();
+                const order = data.order;
+
+                document.getElementById('orderId').textContent = order.order_id;
+                document.getElementById('customerName').textContent = order.customer_name;
+                document.getElementById('orderDate').textContent = new Date(order.created_at).toLocaleDateString('id-ID');
+                document.getElementById('totalAmount').textContent = 
+                    `Rp ${Number(order.grand_total).toLocaleString('id-ID')}`;
+            } catch (err) {
+                console.error('Error loading order:', err);
+            }
+        }
+
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            if (file.size > 5 * 1024 * 1024) {
+                showError('File terlalu besar! Max 5MB');
+                return;
+            }
+
+            if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+                showError('Format file tidak didukung! Gunakan JPG, PNG, atau WebP');
+                return;
+            }
+
+            selectedFile = file;
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                document.getElementById('previewImg').src = event.target.result;
+                document.getElementById('filePreview').classList.add('show');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearFile() {
+            selectedFile = null;
+            document.getElementById('proofFile').value = '';
+            document.getElementById('filePreview').classList.remove('show');
+        }
+
+        function showError(msg) {
+            const errorEl = document.getElementById('errorMsg');
+            errorEl.textContent = msg;
+            errorEl.classList.add('show');
+            setTimeout(() => errorEl.classList.remove('show'), 5000);
+        }
+
+        function showSuccess(msg) {
+            const successEl = document.getElementById('successMsg');
+            successEl.textContent = msg;
+            successEl.classList.add('show');
+        }
+
+        document.getElementById('paymentProofForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (!selectedFile) {
+                showError('Pilih file bukti pembayaran terlebih dahulu');
+                return;
+            }
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Mengunggah...';
+
+            const formData = new FormData();
+            formData.append('order_id', orderId);
+            formData.append('proof_file', selectedFile);
+            formData.append('notes', document.getElementById('notes').value);
+
+            try {
+                const res = await fetch('/api/upload-payment-proof', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    showSuccess('✅ Bukti pembayaran berhasil diunggah! Admin akan memverifikasi dalam 1-2 jam kerja.');
+                    setTimeout(() => {
+                        window.location.href = `order-status.html?id=${orderId}`;
+                    }, 2000);
+                } else {
+                    showError(data.error || 'Gagal mengunggah bukti pembayaran');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '✅ Kirim Bukti Pembayaran';
+                }
+            } catch (err) {
+                console.error('Error:', err);
+                showError('Terjadi kesalahan saat mengunggah');
+                submitBtn.disabled = false;
+                submitBtn.textContent = '✅ Kirim Bukti Pembayaran';
+            }
+        });
+
+        function goToOrderStatus() {
+            window.location.href = `order-status.html?id=${orderId}`;
+            return false;
+        }
+
+        // Drag & drop support
+        const uploadBox = document.getElementById('uploadBox');
+        uploadBox.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadBox.style.background = 'rgba(111,0,255,0.15)';
+        });
+        uploadBox.addEventListener('dragleave', () => {
+            uploadBox.style.background = '';
+        });
+        uploadBox.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadBox.style.background = '';
+            if (e.dataTransfer.files.length > 0) {
+                document.getElementById('proofFile').files = e.dataTransfer.files;
+                handleFileSelect({ target: { files: e.dataTransfer.files } });
+            }
+        });
+    </script>
+</body>
+</html>

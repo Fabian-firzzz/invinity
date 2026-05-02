@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - INFINITY STORE</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #1a1a1a; color: #fff; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        
+        .admin-header {
+            display: flex; justify-content: space-between; align-items: center;
+            background: linear-gradient(135deg, #6f00ff 0%, #a855f7 100%);
+            padding: 20px 30px; border-radius: 12px; margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(111, 0, 255, 0.2);
+        }
+        .admin-header h1 { font-size: 2rem; }
+        .admin-header .user-info { display: flex; align-items: center; gap: 15px; }
+        .logout-btn { background: #ff6b6b; border: none; color: #fff; padding: 10px 20px; border-radius: 8px; cursor: pointer; }
+        
+        .filters { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
+        .filters select, .filters input {
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+            color: #fff; padding: 10px 15px; border-radius: 8px;
+        }
+        .filters button { background: #6f00ff; border: none; color: #fff; padding: 10px 20px; border-radius: 8px; cursor: pointer; }
+        
+        .stats-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px; margin-bottom: 30px;
+        }
+        .stat-card {
+            background: rgba(111, 0, 255, 0.15); border: 1px solid rgba(111, 0, 255, 0.3);
+            padding: 20px; border-radius: 12px; text-align: center;
+        }
+        .stat-card h3 { font-size: 0.9rem; opacity: 0.8; margin-bottom: 10px; }
+        .stat-card .number { font-size: 2rem; font-weight: 700; }
+        
+        .transactions-table {
+            background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px; overflow: hidden;
+        }
+        table { width: 100%; border-collapse: collapse; }
+        th {
+            background: rgba(111, 0, 255, 0.2); padding: 15px;
+            text-align: left; font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        td { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        tr:hover { background: rgba(255,255,255,0.03); }
+        
+        .status-badge {
+            display: inline-block; padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600;
+        }
+        .status-pending { background: #f39c12; color: #fff; }
+        .status-settlement { background: #2ecc71; color: #fff; }
+        .status-rejected { background: #e74c3c; color: #fff; }
+        
+        .action-buttons { display: flex; gap: 10px; }
+        .btn-view, .btn-approve, .btn-reject {
+            padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem;
+        }
+        .btn-view { background: #3498db; color: #fff; }
+        .btn-approve { background: #2ecc71; color: #fff; }
+        .btn-reject { background: #e74c3c; color: #fff; }
+        
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); z-index: 999; align-items: center; justify-content: center;
+        }
+        .modal.show { display: flex; }
+        
+        .modal-content {
+            background: #1a1a1a; border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px; padding: 30px; max-width: 600px; width: 90%;
+            max-height: 80vh; overflow-y: auto;
+        }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-header h2 { font-size: 1.5rem; }
+        .close-btn { background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; }
+        
+        .order-detail { margin: 15px 0; }
+        .order-detail p { margin: 8px 0; line-height: 1.6; }
+        .order-detail strong { color: #6f00ff; }
+        
+        .payment-proof {
+            background: rgba(111, 0, 255, 0.1); padding: 15px; border-radius: 8px; margin: 15px 0;
+        }
+        .payment-proof img { max-width: 100%; border-radius: 8px; }
+        
+        .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+        .modal-actions button { flex: 1; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
+        .btn-approve-modal { background: #2ecc71; color: #fff; }
+        .btn-reject-modal { background: #e74c3c; color: #fff; }
+        
+        .rejection-form { display: none; background: rgba(255,0,0,0.1); padding: 15px; border-radius: 8px; margin: 15px 0; }
+        .rejection-form textarea { width: 100%; background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); padding: 10px; border-radius: 6px; }
+        
+        .loader { text-align: center; padding: 20px; }
+        .spinner { border: 4px solid rgba(111,0,255,0.2); border-top: 4px solid #6f00ff; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .empty-state { text-align: center; padding: 40px; color: #888; }
+        .pagination { display: flex; justify-content: center; gap: 10px; margin-top: 20px; }
+        .pagination button { padding: 8px 12px; background: rgba(111,0,255,0.3); border: 1px solid rgba(111,0,255,0.5); color: #fff; border-radius: 6px; cursor: pointer; }
+        .pagination button.active { background: #6f00ff; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="admin-header">
+            <div>
+                <h1>📊 Admin Dashboard</h1>
+                <p style="opacity: 0.9;">Kelola pembayaran dan pesanan pelanggan</p>
+            </div>
+            <div class="user-info">
+                <div>
+                    <div style="font-size: 0.9rem; opacity: 0.8;">Admin</div>
+                    <div id="adminName">Administrator</div>
+                </div>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+
+        <div class="filters">
+            <select id="statusFilter" onchange="applyFilters()">
+                <option value="">Semua Status</option>
+                <option value="pending">Menunggu Pembayaran</option>
+                <option value="settlement">Terbayar</option>
+                <option value="rejected">Ditolak</option>
+            </select>
+            <select id="paymentMethodFilter" onchange="applyFilters()">
+                <option value="">Semua Metode Pembayaran</option>
+                <option value="Manual Payment">Pembayaran Manual</option>
+                <option value="Midtrans Snap">Midtrans</option>
+            </select>
+            <input type="date" id="dateFilter" onchange="applyFilters()">
+            <input type="text" id="searchFilter" placeholder="Cari Order ID atau Nama..." onchange="applyFilters()">
+            <button onclick="applyFilters()">🔍 Cari</button>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Pending</h3>
+                <div class="number" id="pendingCount">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Terbayar</h3>
+                <div class="number" id="settlementCount">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Ditolak</h3>
+                <div class="number" id="rejectedCount">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Total Revenue</h3>
+                <div class="number" id="totalRevenue">Rp 0</div>
+            </div>
+        </div>
+
+        <div class="transactions-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Nama Pelanggan</th>
+                        <th>Metode</th>
+                        <th>Jumlah</th>
+                        <th>Status</th>
+                        <th>Tanggal</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="transactionList">
+                    <tr><td colspan="7" class="loader"><div class="spinner"></div></td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pagination" id="pagination"></div>
+    </div>
+
+    <!-- Modal Detail & Approve/Reject -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Detail Pesanan</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="modalBody">
+                <div class="loader"><div class="spinner"></div></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allOrders = [];
+        let filteredOrders = [];
+        let currentPage = 1;
+        const itemsPerPage = 10;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadOrders();
+        });
+
+        async function loadOrders() {
+            try {
+                const res = await fetch('/api/admin/orders');
+                allOrders = await res.json();
+                updateStats();
+                applyFilters();
+            } catch (err) {
+                console.error('Error loading orders:', err);
+                document.getElementById('transactionList').innerHTML = 
+                    '<tr><td colspan="7" class="empty-state">❌ Gagal memuat data</td></tr>';
+            }
+        }
+
+        function updateStats() {
+            const pending = allOrders.filter(o => o.status === 'pending').length;
+            const settlement = allOrders.filter(o => o.status === 'settlement').length;
+            const rejected = allOrders.filter(o => o.status === 'rejected').length;
+            const totalRev = allOrders
+                .filter(o => o.status === 'settlement')
+                .reduce((sum, o) => sum + (Number(o.grand_total) || 0), 0);
+
+            document.getElementById('pendingCount').textContent = pending;
+            document.getElementById('settlementCount').textContent = settlement;
+            document.getElementById('rejectedCount').textContent = rejected;
+            document.getElementById('totalRevenue').textContent = 
+                `Rp ${totalRev.toLocaleString('id-ID')}`;
+        }
+
+        function applyFilters() {
+            const statusFilter = document.getElementById('statusFilter').value;
+            const methodFilter = document.getElementById('paymentMethodFilter').value;
+            const dateFilter = document.getElementById('dateFilter').value;
+            const searchFilter = document.getElementById('searchFilter').value.toLowerCase();
+
+            filteredOrders = allOrders.filter(order => {
+                const statusMatch = !statusFilter || order.status === statusFilter;
+                const methodMatch = !methodFilter || order.payment_method === methodFilter;
+                const dateMatch = !dateFilter || order.created_at.startsWith(dateFilter);
+                const searchMatch = !searchFilter || 
+                    order.order_id.toLowerCase().includes(searchFilter) ||
+                    order.customer_name.toLowerCase().includes(searchFilter);
+                return statusMatch && methodMatch && dateMatch && searchMatch;
+            });
+
+            currentPage = 1;
+            renderTransactions();
+        }
+
+        function renderTransactions() {
+            const tbody = document.getElementById('transactionList');
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const pageOrders = filteredOrders.slice(start, end);
+
+            if (pageOrders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="empty-state">📭 Tidak ada data</td></tr>';
+                document.getElementById('pagination').innerHTML = '';
+                return;
+            }
+
+            tbody.innerHTML = pageOrders.map(order => `
+                <tr>
+                    <td><strong>${order.order_id}</strong></td>
+                    <td>${order.customer_name}</td>
+                    <td>${order.payment_method}</td>
+                    <td>Rp ${Number(order.grand_total).toLocaleString('id-ID')}</td>
+                    <td><span class="status-badge status-${order.status}">${getStatusLabel(order.status)}</span></td>
+                    <td>${new Date(order.created_at).toLocaleDateString('id-ID')}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-view" onclick="viewDetail('${order.order_id}')">Lihat</button>
+                            ${order.status === 'pending' && order.payment_method === 'Manual Payment' ? 
+                                `<button class="btn-approve" onclick="approvePayment('${order.order_id}')">✓</button>
+                                 <button class="btn-reject" onclick="openRejectForm('${order.order_id}')">✗</button>` 
+                                : ''}
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+
+            renderPagination();
+        }
+
+        function renderPagination() {
+            const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
+            const pagination = document.getElementById('pagination');
+            pagination.innerHTML = '';
+
+            for (let i = 1; i <= totalPages; i++) {
+                const btn = document.createElement('button');
+                btn.textContent = i;
+                btn.className = i === currentPage ? 'active' : '';
+                btn.onclick = () => { currentPage = i; renderTransactions(); };
+                pagination.appendChild(btn);
+            }
+        }
+
+        function getStatusLabel(status) {
+            const labels = {
+                'pending': '⏳ Menunggu',
+                'settlement': '✅ Terbayar',
+                'rejected': '❌ Ditolak'
+            };
+            return labels[status] || status;
+        }
+
+        async function viewDetail(orderId) {
+            const order = allOrders.find(o => o.order_id === orderId);
+            if (!order) return;
+
+            const res = await fetch(`/api/orders/${orderId}`);
+            const data = await res.json();
+            const order_items = data.items || [];
+
+            let html = `
+                <div class="order-detail">
+                    <p><strong>Order ID:</strong> ${order.order_id}</p>
+                    <p><strong>Nama:</strong> ${order.customer_name}</p>
+                    <p><strong>Telepon:</strong> ${order.customer_phone}</p>
+                    <p><strong>Alamat:</strong> ${order.address_detail}, ${order.district}, ${order.city}, ${order.province} ${order.postal_code}</p>
+                    <p><strong>Metode Pembayaran:</strong> ${order.payment_method}</p>
+                    <p><strong>Status:</strong> <span class="status-badge status-${order.status}">${getStatusLabel(order.status)}</span></p>
+                    <p><strong>Tanggal Pesanan:</strong> ${new Date(order.created_at).toLocaleString('id-ID')}</p>
+                </div>
+
+                <div style="background: rgba(111,0,255,0.1); padding: 15px; border-radius: 8px; margin: 15px 0;">
+                    <h3 style="margin-bottom: 10px;">Daftar Item</h3>
+                    ${order_items.map(item => `
+                        <div style="display: flex; justify-content: space-between; margin: 8px 0; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                            <span>${item.product_name} x ${item.quantity}</span>
+                            <span>Rp ${(Number(item.price) * item.quantity).toLocaleString('id-ID')}</span>
+                        </div>
+                    `).join('')}
+                    <div style="display: flex; justify-content: space-between; margin-top: 12px; padding-top: 12px; border-top: 2px solid rgba(111,0,255,0.3);">
+                        <strong>Total:</strong>
+                        <strong>Rp ${Number(order.grand_total).toLocaleString('id-ID')}</strong>
+                    </div>
+                </div>
+            `;
+
+            if (order.payment_proof_path) {
+                html += `
+                    <div class="payment-proof">
+                        <h3 style="margin-bottom: 10px;">📸 Bukti Pembayaran</h3>
+                        <img src="${order.payment_proof_path}" alt="Bukti Pembayaran">
+                    </div>
+                `;
+            }
+
+            if (order.status === 'rejected' && order.rejection_reason) {
+                html += `
+                    <div style="background: rgba(230,126,34,0.1); padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #e67e22;">
+                        <strong>❌ Alasan Penolakan:</strong><br>
+                        ${order.rejection_reason}
+                    </div>
+                `;
+            }
+
+            if (order.status === 'settlement' && order.confirmed_at) {
+                html += `
+                    <div style="background: rgba(46,204,113,0.1); padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #2ecc71;">
+                        <strong>✅ Disetujui oleh:</strong> ${order.confirmed_by}<br>
+                        <strong>Waktu:</strong> ${new Date(order.confirmed_at).toLocaleString('id-ID')}
+                    </div>
+                `;
+            }
+
+            if (order.status === 'pending' && order.payment_method === 'Manual Payment') {
+                html += `
+                    <div class="modal-actions">
+                        <button class="btn-approve-modal" onclick="approvePayment('${order.order_id}')">✅ Setujui Pembayaran</button>
+                        <button class="btn-reject-modal" onclick="openRejectForm('${order.order_id}')">❌ Tolak Pembayaran</button>
+                    </div>
+                `;
+            }
+
+            document.getElementById('modalBody').innerHTML = html;
+            document.getElementById('detailModal').classList.add('show');
+        }
+
+        function openRejectForm(orderId) {
+            const form = document.getElementById('rejectForm') || createRejectForm();
+            form.style.display = 'block';
+            form.dataset.orderId = orderId;
+        }
+
+        function createRejectForm() {
+            const form = document.createElement('div');
+            form.id = 'rejectForm';
+            form.className = 'rejection-form';
+            form.innerHTML = `
+                <h3 style="margin-bottom: 10px;">Alasan Penolakan</h3>
+                <textarea id="rejectionReason" placeholder="Masukkan alasan penolakan..." rows="4"></textarea>
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <button onclick="submitReject()" style="flex: 1; background: #e74c3c; color: #fff; border: none; padding: 10px; border-radius: 6px; cursor: pointer;">Tolak</button>
+                    <button onclick="document.getElementById('rejectForm').style.display='none'" style="flex: 1; background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); padding: 10px; border-radius: 6px; cursor: pointer;">Batal</button>
+                </div>
+            `;
+            document.getElementById('modalBody').appendChild(form);
+            return form;
+        }
+
+        async function approvePayment(orderId) {
+            if (!confirm('Setujui pembayaran pesanan ini?')) return;
+
+            try {
+                const res = await fetch('/api/admin/approve-payment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ order_id: orderId, admin_name: 'Admin' })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    alert('✅ Pembayaran disetujui!');
+                    closeModal();
+                    loadOrders();
+                } else {
+                    alert('❌ ' + (data.error || 'Gagal menyetujui pembayaran'));
+                }
+            } catch (err) {
+                console.error('Error:', err);
+                alert('Terjadi kesalahan');
+            }
+        }
+
+        async function submitReject() {
+            const form = document.getElementById('rejectForm');
+            const orderId = form.dataset.orderId;
+            const reason = document.getElementById('rejectionReason').value.trim();
+
+            if (!reason) {
+                alert('Masukkan alasan penolakan');
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/admin/reject-payment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ order_id: orderId, reason })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    alert('❌ Pembayaran ditolak!');
+                    closeModal();
+                    loadOrders();
+                } else {
+                    alert('Gagal menolak pembayaran');
+                }
+            } catch (err) {
+                console.error('Error:', err);
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('detailModal').classList.remove('show');
+            document.getElementById('modalBody').innerHTML = '';
+        }
+
+        function logout() {
+            localStorage.removeItem('adminToken');
+            window.location.href = '../index.html';
+        }
+    </script>
+</body>
+</html>

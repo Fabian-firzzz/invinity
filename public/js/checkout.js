@@ -87,10 +87,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const districtEl = document.getElementById('district');
         const district = (districtEl.value === 'Lainnya') ? document.getElementById('districtCustom').value.trim() : districtEl.value.trim();
         const postalCode = document.getElementById('postalCode').value.trim();
-        const addressDetail = document.getElementById('addressDetail').value.trim(); // now optional
+        const addressDetail = document.getElementById('addressDetail').value.trim();
         const notes = document.getElementById('notes').value.trim();
+        const paymentMethod = document.getElementById('paymentMethod') ? document.getElementById('paymentMethod').value : 'Midtrans Snap';
 
-        // Required checks: fullName, phone, province, city, district, postalCode
+        // Required checks
         if (!fullName || !phone || !province || !city || !district || !postalCode) {
             alert('Lengkapi semua field wajib. Detail alamat dan catatan bersifat opsional.');
             return;
@@ -98,14 +99,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!onlyDigits(phone)) { alert('Nomor HP harus angka saja.'); return; }
         if (!onlyDigits(postalCode)) { alert('Kode pos harus angka saja.'); return; }
 
-        // prepare order details
         const cart = JSON.parse(localStorage.getItem('airpodsCart')) || [];
         if (cart.length === 0) { alert('Keranjang kosong.'); return; }
 
-        // compute total using cart snapshot prices (not API fallback)
         let subtotal = 0;
         cart.forEach(item => {
-            // use snapshot price stored in cart
             const price = (typeof item.price === 'number') ? item.price : 0;
             const qty = item.quantity || 1;
             subtotal += price * qty;
@@ -113,20 +111,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const admin = Math.round(subtotal * 0.02);
         const grand = subtotal + admin;
 
-        // Buat payload untuk dikirim ke backend
         const requestData = {
             fullName, phone, province, city, district, postalCode, addressDetail, notes,
-            paymentMethod: 'Midtrans Snap',
+            paymentMethod: paymentMethod,
             cart: cart
         };
 
-        // Ganti tombol submit dengan loading state
         const submitBtn = document.querySelector('#checkoutForm button[type="submit"]');
         const originalText = submitBtn.textContent;
         submitBtn.disabled = true;
         submitBtn.textContent = 'Memproses...';
 
-        // Panggil API checkout
         fetch('/api/checkout', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -134,28 +129,74 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .then(res => res.json())
         .then(data => {
-            if (data.success && data.token) {
+            if (data.success && data.order_id) {
                 // Kosongkan keranjang
                 localStorage.removeItem('airpodsCart');
 
-                // Tampilkan Midtrans Snap Popup
-                window.snap.pay(data.token, {
-                    onSuccess: function(result){
-                        window.location.href = `order-status.html?id=${data.order_id}`;
-                    },
-                    onPending: function(result){
-                        window.location.href = `order-status.html?id=${data.order_id}`;
-                    },
-                    onError: function(result){
-                        alert('Pembayaran gagal!');
+                // Check jenis pembayaran
+                if (requestData.paymentMethod === 'Manual Payment') {
+                    // Redirect ke halaman upload bukti pembayaran
+                    window.location.href = `payment-proof.html?id=${data.order_id}`;
+                } else if (data.token || data.redirect_url) {
+                    // Midtrans payment flow
+                    const orderStatusUrl = `order-status.html?id=${data.order_id}`;
+                    const redirectToOrderStatus = () => {
+                        localStorage.setItem('lastOrderId', data.order_id);
+                        localStorage.setItem('paymentTime', new Date().toISOString());
+                        window.location.href = orderStatusUrl;
+                    };
+
+                    const startSnapPayment = () => {
+                        try {
+                            window.snap.pay(data.token, {
+                                onSuccess: function(result){
+                                    console.log('Payment success:', result);
+                                    redirectToOrderStatus();
+                                },
+                                onPending: function(result){
+                                    console.log('Payment pending:', result);
+                                    redirectToOrderStatus();
+                                },
+                                onError: function(result){
+                                    console.error('Payment error:', result);
+                                    alert('Pembayaran gagal! Silakan coba lagi.');
+                                    submitBtn.disabled = false;
+                                    submitBtn.textContent = originalText;
+                                },
+                                onClose: function(){
+                                    console.log('Payment popup closed');
+                                    setTimeout(() => {
+                                        redirectToOrderStatus();
+                                    }, 2000);
+                                }
+                            });
+                        } catch (e) {
+                            console.error('Snap error:', e);
+                            if (data.redirect_url) {
+                                window.location.href = data.redirect_url;
+                            } else {
+                                alert('Tidak dapat memulai pembayaran. Silakan refresh halaman dan coba lagi.');
+                                submitBtn.disabled = false;
+                                submitBtn.textContent = originalText;
+                            }
+                        }
+                    };
+
+                    if (window.snap && typeof window.snap.pay === 'function' && data.token) {
+                        startSnapPayment();
+                    } else if (data.redirect_url) {
+                        console.warn('Snap.js tidak tersedia, menggunakan redirect URL');
+                        window.location.href = data.redirect_url;
+                    } else {
+                        alert('Tidak dapat memulai pembayaran. Silakan gunakan browser lain atau hubungi admin.');
                         submitBtn.disabled = false;
                         submitBtn.textContent = originalText;
-                    },
-                    onClose: function(){
-                        alert('Anda menutup popup sebelum menyelesaikan pembayaran.');
-                        window.location.href = `order-status.html?id=${data.order_id}`;
                     }
-                });
+                } else {
+                    alert('Format respons pembayaran tidak valid');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
+                }
             } else {
                 alert('Gagal membuat transaksi: ' + (data.error || 'Unknown error'));
                 submitBtn.disabled = false;
@@ -170,8 +211,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    closeQr.addEventListener('click', () => {
-        qrModal.style.display = 'none';
+    if (closeQr) closeQr.addEventListener('click', () => {
+        if (qrModal) qrModal.style.display = 'none';
     });
 
     let countdownInterval = null;

@@ -653,3 +653,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.open(shareUrl, '_blank', 'width=600,height=400');
     };
 });
+const easterScript = document.createElement('script');
+easterScript.src = 'js/easter-egg.js';
+easterScript.async = true;
+document.head.appendChild(easterScript);

@@ -110,9 +110,14 @@ CREATE TABLE `orders` (
   `status` ENUM('pending','settlement','expire','cancel','deny','failure') DEFAULT 'pending',
   `midtrans_transaction_id` VARCHAR(100) DEFAULT NULL,
   `snap_token` VARCHAR(255) DEFAULT NULL,
+  `redirect_url` VARCHAR(500) DEFAULT NULL COMMENT 'Redirect URL for payment gateway',
   `paid_at` TIMESTAMP NULL DEFAULT NULL,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `payment_proof_path` VARCHAR(255) DEFAULT NULL COMMENT 'Path to uploaded payment proof',
+  `confirmed_at` TIMESTAMP NULL DEFAULT NULL COMMENT 'When payment was confirmed by admin',
+  `confirmed_by` VARCHAR(100) DEFAULT NULL COMMENT 'Admin who confirmed the payment',
+  `rejection_reason` TEXT DEFAULT NULL COMMENT 'Reason if payment was rejected',
   PRIMARY KEY (`id`),
   UNIQUE KEY `order_id` (`order_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -173,6 +178,17 @@ INSERT INTO `product_options` (`product_id`, `option_name`) VALUES
 ('pro2', 'Pink'),
 ('pro2', 'Green'),
 ('2rd', 'Dengan Casger Pengisian MagSafe');
+
+-- ============================================================
+-- ALTER TABLE: Add manual payment support columns to existing orders table
+-- Use this for updating existing database without losing data
+-- ============================================================
+ALTER TABLE `orders`
+  ADD COLUMN `redirect_url` VARCHAR(500) DEFAULT NULL COMMENT 'Redirect URL for payment gateway' AFTER `snap_token`,
+  ADD COLUMN `payment_proof_path` VARCHAR(255) DEFAULT NULL COMMENT 'Path to uploaded payment proof' AFTER `redirect_url`,
+  ADD COLUMN `confirmed_at` TIMESTAMP NULL DEFAULT NULL COMMENT 'When payment was confirmed by admin' AFTER `payment_proof_path`,
+  ADD COLUMN `confirmed_by` VARCHAR(100) DEFAULT NULL COMMENT 'Admin who confirmed the payment' AFTER `confirmed_at`,
+  ADD COLUMN `rejection_reason` TEXT DEFAULT NULL COMMENT 'Reason if payment was rejected' AFTER `confirmed_by`;
 
 COMMIT;
 

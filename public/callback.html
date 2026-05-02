@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Midtrans Callback</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #111; color: #fff; margin: 0; }
+        .callback-box { max-width: 520px; width: 100%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; padding: 32px; text-align: center; }
+        .callback-box h1 { margin-top: 0; }
+        .callback-box p { line-height: 1.6; }
+        .btn { display: inline-block; margin-top: 16px; padding: 12px 24px; background: #6f00ff; color: #fff; border: none; border-radius: 10px; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="callback-box">
+        <h1>Memproses Pembayaran...</h1>
+        <p>Midtrans sedang kembali ke website. Jika halaman ini tetap tampil lebih dari beberapa detik, klik tombol di bawah untuk melanjutkan ke halaman status pesanan.</p>
+        <a id="returnLink" href="index.html" class="btn">Kembali ke Infinity Store</a>
+        <p id="callbackMessage" style="margin-top:1em; font-size:0.95rem; color:#ccc;">Jika Anda berada dalam proses Akulaku atau payment redirect, tunggu sampai kembali otomatis.</p>
+    </div>
+
+    <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="Mid-client-nLEY047RxYhsrxGj"></script>
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const returnLink = document.getElementById('returnLink');
+
+        if (window.opener && !window.opener.closed) {
+            setTimeout(() => {
+                window.close();
+            }, 4000);
+        }
+
+        if (params.get('referenceId')) {
+            document.getElementById('callbackMessage').textContent =
+                'Pembayaran telah selesai, silakan kembali ke toko. Jika halaman tidak otomatis menutup, klik tombol di bawah.';
+        }
+    </script>
+</body>
+</html>

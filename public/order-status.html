@@ -127,6 +127,10 @@
                 return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
             }
 
+            let lastStatus = null;
+            let pollCount = 0;
+            let maxPolls = 60; // Poll hingga 5 menit (60 x 5 detik)
+
             function loadStatus() {
                 fetch(`/api/orders/${orderId}`)
                     .then(r => r.json())
@@ -138,36 +142,84 @@
                         document.getElementById('statusResult').style.display = 'block';
                         
                         const order = data.order;
+                        const newStatus = order.status.toLowerCase();
+                        
+                        // Check if status changed
+                        if (lastStatus !== null && lastStatus !== newStatus) {
+                            console.log(`Status berubah dari ${lastStatus} ke ${newStatus}`);
+                            // Status berubah, cukup update display
+                        }
+                        lastStatus = newStatus;
+
                         document.getElementById('displayOrderId').textContent = order.order_id;
                         document.getElementById('customerName').textContent = order.customer_name;
                         document.getElementById('customerAddress').textContent = `${order.address_detail || ''}, ${order.district}, ${order.city}, ${order.province} ${order.postal_code}`;
                         document.getElementById('grandTotal').textContent = formatRupiah(order.grand_total);
                         
                         const badge = document.getElementById('statusBadge');
-                        const status = order.status.toLowerCase();
-                        let statusText = 'Menunggu Pembayaran';
                         badge.className = 'status-badge';
                         
                         const payAgainBtn = document.getElementById('payAgainBtn');
                         payAgainBtn.style.display = 'none';
 
-                        if (status === 'pending') {
+                        if (newStatus === 'pending') {
                             badge.classList.add('status-pending');
-                            statusText = '⏳ Menunggu Pembayaran';
+                            badge.textContent = '⏳ Menunggu Pembayaran';
                             if (order.snap_token) {
                                 payAgainBtn.style.display = 'inline-block';
+                                payAgainBtn.textContent = 'Lanjutkan Pembayaran';
                                 payAgainBtn.onclick = () => {
-                                    window.snap.pay(order.snap_token);
+                                    window.snap.pay(order.snap_token, {
+                                        onSuccess: function(result) {
+                                            console.log('Payment success from retry:', result);
+                                            setTimeout(() => window.location.reload(), 1500);
+                                        },
+                                        onPending: function(result) {
+                                            console.log('Payment pending from retry:', result);
+                                            setTimeout(() => window.location.reload(), 1500);
+                                        },
+                                        onError: function(result) {
+                                            alert('Pembayaran gagal. Silakan coba lagi.');
+                                        },
+                                        onClose: function() {
+                                            console.log('Payment popup closed by user');
+                                            // Refresh untuk cek status terbaru
+                                            setTimeout(() => loadStatus(), 2000);
+                                        }
+                                    });
                                 };
                             }
-                        } else if (status === 'settlement') {
+                        } else if (newStatus === 'settlement') {
                             badge.classList.add('status-settlement');
-                            statusText = '✅ Pembayaran Berhasil';
-                        } else {
+                            badge.textContent = '✅ Pembayaran Berhasil';
+                            payAgainBtn.style.display = 'none';
+                        } else if (newStatus === 'cancel' || newStatus === 'deny' || newStatus === 'expire') {
                             badge.classList.add('status-expire');
-                            statusText = '❌ Pesanan Dibatalkan / Kadaluarsa';
+                            badge.textContent = '❌ ' + (newStatus === 'cancel' ? 'Pesanan Dibatalkan' : newStatus === 'deny' ? 'Pembayaran Ditolak' : 'Pesanan Kadaluarsa');
+                            if (order.snap_token) {
+                                payAgainBtn.style.display = 'inline-block';
+                                payAgainBtn.textContent = 'Coba Pembayaran Lagi';
+                                payAgainBtn.onclick = () => {
+                                    window.snap.pay(order.snap_token, {
+                                        onSuccess: function(result) {
+                                            console.log('Payment success from retry:', result);
+                                            setTimeout(() => window.location.reload(), 1500);
+                                        },
+                                        onPending: function(result) {
+                                            console.log('Payment pending from retry:', result);
+                                            setTimeout(() => window.location.reload(), 1500);
+                                        },
+                                        onError: function(result) {
+                                            alert('Pembayaran gagal. Silakan coba lagi.');
+                                        },
+                                        onClose: function() {
+                                            console.log('Payment popup closed by user');
+                                            setTimeout(() => loadStatus(), 2000);
+                                        }
+                                    });
+                                };
+                            }
                         }
-                        badge.textContent = statusText;
 
                         const ul = document.getElementById('orderItemsList');
                         ul.innerHTML = '';
@@ -185,20 +237,37 @@
                         }
                     })
                     .catch(err => {
-                        document.getElementById('loader').style.display = 'none';
-                        document.getElementById('statusTitle').textContent = 'Error: ' + err.message;
+                        console.error('Load status error:', err);
+                        if (document.getElementById('statusResult').style.display === 'none') {
+                            document.getElementById('loader').style.display = 'none';
+                            document.getElementById('statusTitle').textContent = 'Error: ' + err.message;
+                        }
                     });
             }
 
             loadStatus();
             
-            // Poll status if pending
-            setInterval(() => {
+            // Poll status jika masih pending - setiap 5 detik, maksimal 5 menit
+            const pollInterval = setInterval(() => {
+                pollCount++;
                 const badge = document.getElementById('statusBadge');
-                if (badge.classList.contains('status-pending')) {
-                    loadStatus();
+                if (badge && (badge.classList.contains('status-pending') || badge.classList.contains('status-expire'))) {
+                    if (pollCount < maxPolls) {
+                        console.log(`Polling status (${pollCount}/${maxPolls})...`);
+                        loadStatus();
+                    } else {
+                        console.log('Poll timeout reached');
+                        clearInterval(pollInterval);
+                    }
+                } else if (badge && badge.classList.contains('status-settlement')) {
+                    clearInterval(pollInterval);
                 }
             }, 5000);
+
+            // Cleanup interval ketika meninggalkan halaman
+            window.addEventListener('beforeunload', () => {
+                clearInterval(pollInterval);
+            });
         });
     </script>
 </body>

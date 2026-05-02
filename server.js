@@ -3,15 +3,47 @@ const mysql = require('mysql2/promise');
 const path = require('path');
 const midtransClient = require('midtrans-client');
 const { v4: uuidv4 } = require('uuid');
+const multer = require('multer');
+const fs = require('fs');
 const app = express();
 
 app.use(express.json());
 
+// === Setup Multer untuk upload file ===
+const uploadDir = path.join(__dirname, 'public', 'uploads', 'payments');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    const name = `${req.body.order_id}-${Date.now()}${ext}`;
+    cb(null, name);
+  }
+});
+
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const allowedMimes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (allowedMimes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Format file tidak didukung'));
+    }
+  }
+});
+
 // Initialize Midtrans Snap client
 let snap = new midtransClient.Snap({
   isProduction: false,
-  serverKey: process.env.MIDTRANS_SERVER_KEY || 'YOUR_SERVER_KEY', 
-  clientKey: process.env.MIDTRANS_CLIENT_KEY || 'YOUR_CLIENT_KEY'  
+  serverKey: process.env.MIDTRANS_SERVER_KEY,
+  clientKey: process.env.MIDTRANS_CLIENT_KEY || 'Mid-client-nLEY047RxYhsrxGj'
 });
 
 // === Setup koneksi MySQL (promise-based) ===
@@ -250,7 +282,7 @@ app.post('/api/checkout', async (req, res) => {
       `, [orderId, item.productId, item.name, item.price, item.quantity]);
     }
 
-    // 3. Buat transaksi ke Midtrans
+    // 3. Siapkan item details untuk gateway atau manual payment
     const itemDetails = orderItems.map(item => ({
       id: item.productId,
       price: item.price,
@@ -268,6 +300,27 @@ app.post('/api/checkout', async (req, res) => {
       });
     }
 
+    const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+
+    // Jika pelanggan memilih Pembayaran Manual, arahkan ke halaman upload bukti
+    if (paymentMethod === 'Manual Payment') {
+      const manualUrl = `${baseUrl}/payment-proof.html?id=${orderId}`;
+      await pool.query('UPDATE orders SET redirect_url = ? WHERE order_id = ?', [manualUrl, orderId]);
+      return res.json({
+        success: true,
+        order_id: orderId,
+        manual: true,
+        payment_proof_url: manualUrl,
+        instructions: {
+          message: 'Silakan transfer ke rekening kami dan unggah bukti pembayaran di halaman yang disediakan.',
+          bank: 'BCA',
+          account_number: '1234567890',
+          account_name: 'INFINITY STORE'
+        }
+      });
+    }
+
+    // Default: buat transaksi ke Midtrans (Snap)
     const parameter = {
       transaction_details: {
         order_id: orderId,
@@ -285,20 +338,29 @@ app.post('/api/checkout', async (req, res) => {
           country_code: 'IDN'
         }
       },
-      item_details: itemDetails
+      item_details: itemDetails,
+      // Callbacks untuk berbagai metode pembayaran
+      callbacks: {
+        finish: `${baseUrl}/order-status.html?id=${orderId}`,
+        unfinish: `${baseUrl}/order-status.html?id=${orderId}`,
+        error: `${baseUrl}/order-status.html?id=${orderId}`
+      },
+      // Enable semua payment methods
+      payment_type: 'all'
     };
 
     const transaction = await snap.createTransaction(parameter);
-    
+
     // Update token & redirect url ke database
-    await pool.query('UPDATE orders SET snap_token = ? WHERE order_id = ?', [transaction.token, orderId]);
+    await pool.query('UPDATE orders SET snap_token = ?, redirect_url = ? WHERE order_id = ?', [transaction.token, transaction.redirect_url, orderId]);
 
     // Kirim response
     res.json({
       success: true,
       order_id: orderId,
       token: transaction.token,
-      redirect_url: transaction.redirect_url
+      redirect_url: transaction.redirect_url,
+      client_key: process.env.MIDTRANS_CLIENT_KEY || 'Mid-client-nLEY047RxYhsrxGj'
     });
 
   } catch (err) {
@@ -308,18 +370,24 @@ app.post('/api/checkout', async (req, res) => {
 });
 
 // --- POST /api/midtrans/webhook ---
-// Handle callback dari Midtrans
+// Handle callback dari Midtrans untuk semua metode pembayaran
 app.post('/api/midtrans/webhook', async (req, res) => {
   try {
     const notificationJson = req.body;
+    console.log('Webhook received:', notificationJson);
+    
     const notification = await snap.transaction.notification(notificationJson);
     
     const orderId = notification.order_id;
     const transactionStatus = notification.transaction_status;
     const fraudStatus = notification.fraud_status;
+    const paymentType = notification.payment_type;
+    
+    console.log(`[WEBHOOK] Order: ${orderId}, Status: ${transactionStatus}, Payment Type: ${paymentType}, Fraud: ${fraudStatus}`);
     
     let orderStatus = 'pending';
 
+    // Mapping status dari Midtrans ke status order
     if (transactionStatus == 'capture') {
         if (fraudStatus == 'challenge'){
             orderStatus = 'pending';
@@ -334,9 +402,9 @@ app.post('/api/midtrans/webhook', async (req, res) => {
         orderStatus = 'pending';
     }
     
-    // Update database
-    let updateQuery = 'UPDATE orders SET status = ?, midtrans_transaction_id = ?';
-    const queryParams = [orderStatus, notification.transaction_id];
+    // Update database dengan status pembayaran terbaru
+    let updateQuery = 'UPDATE orders SET status = ?, midtrans_transaction_id = ?, payment_type = ?';
+    const queryParams = [orderStatus, notification.transaction_id, paymentType];
     
     if (orderStatus === 'settlement') {
         updateQuery += ', paid_at = NOW()';
@@ -346,11 +414,69 @@ app.post('/api/midtrans/webhook', async (req, res) => {
     
     await pool.query(updateQuery, queryParams);
     
-    console.log(`Order ${orderId} status updated to ${orderStatus}`);
-    res.status(200).json({ status: 'OK' });
+    console.log(`✅ Order ${orderId} status updated to ${orderStatus}`);
+    res.status(200).json({ status: 'OK', message: 'Webhook processed successfully' });
   } catch (error) {
-    console.error('Webhook error:', error);
-    res.status(500).json({ error: 'Webhook handler failed' });
+    console.error('❌ Webhook error:', error);
+    res.status(500).json({ error: 'Webhook handler failed', message: error.message });
+  }
+});
+
+// --- GET /api/midtrans/status/:orderId ---
+// Check payment status real-time dari Midtrans
+app.get('/api/midtrans/status/:orderId', async (req, res) => {
+  try {
+    const orderId = req.params.orderId;
+    
+    // Get status dari database terlebih dahulu
+    const [orders] = await pool.query('SELECT * FROM orders WHERE order_id = ?', [orderId]);
+    
+    if (orders.length === 0) {
+      return res.status(404).json({ error: 'Order tidak ditemukan' });
+    }
+
+    const order = orders[0];
+    
+    // Jika sudah settlement, return langsung
+    if (order.status === 'settlement') {
+      return res.json({
+        status: 'settlement',
+        order_id: orderId,
+        message: 'Pembayaran sudah berhasil'
+      });
+    }
+
+    // Jika masih pending, cek ke Midtrans
+    if (order.snap_token) {
+      try {
+        const statusRes = await snap.transaction.status(orderId);
+        console.log(`Status check for ${orderId}:`, statusRes.transaction_status);
+        
+        return res.json({
+          status: statusRes.transaction_status,
+          order_id: orderId,
+          payment_type: statusRes.payment_type,
+          gross_amount: statusRes.gross_amount
+        });
+      } catch (err) {
+        console.error(`Failed to check status from Midtrans for ${orderId}:`, err);
+        // Return local status jika gagal check ke Midtrans
+        return res.json({
+          status: order.status,
+          order_id: orderId,
+          message: 'Status dari database lokal'
+        });
+      }
+    }
+
+    res.json({
+      status: order.status,
+      order_id: orderId,
+      message: 'Status dari database lokal'
+    });
+  } catch (err) {
+    console.error('Error checking status:', err);
+    res.status(500).json({ error: 'Gagal mengecek status pembayaran' });
   }
 });
 
@@ -373,6 +499,125 @@ app.get('/api/orders/:orderId', async (req, res) => {
     console.error('Error fetching order:', err);
     res.status(500).json({ error: 'Gagal mengambil data pesanan' });
   }
+});
+
+// ============================================================
+// ADMIN ENDPOINTS - Payment Management
+// ============================================================
+
+// --- GET /api/admin/orders ---
+// List semua order untuk admin dashboard
+app.get('/api/admin/orders', async (req, res) => {
+  try {
+    const [orders] = await pool.query(`
+      SELECT id, order_id, customer_name, customer_phone, province, city, district, 
+             postal_code, address_detail, payment_method, subtotal, admin_fee, grand_total, 
+             status, payment_proof_path, confirmed_at, confirmed_by, rejection_reason, 
+             created_at, updated_at
+      FROM orders 
+      ORDER BY created_at DESC
+    `);
+    
+    res.json(orders);
+  } catch (err) {
+    console.error('Error fetching admin orders:', err);
+    res.status(500).json({ error: 'Gagal memuat daftar pesanan' });
+  }
+});
+
+// --- POST /api/admin/approve-payment ---
+// Setujui pembayaran manual
+app.post('/api/admin/approve-payment', async (req, res) => {
+  try {
+    const { order_id, admin_name } = req.body;
+    
+    if (!order_id || !admin_name) {
+      return res.status(400).json({ error: 'order_id dan admin_name diperlukan' });
+    }
+
+    // Update order status ke settlement
+    await pool.query(`
+      UPDATE orders 
+      SET status = 'settlement', confirmed_at = NOW(), confirmed_by = ?
+      WHERE order_id = ?
+    `, [admin_name, order_id]);
+
+    console.log(`✅ Payment approved for order ${order_id} by ${admin_name}`);
+    res.json({ 
+      success: true, 
+      message: 'Pembayaran telah disetujui',
+      order_id: order_id
+    });
+  } catch (err) {
+    console.error('Error approving payment:', err);
+    res.status(500).json({ error: 'Gagal menyetujui pembayaran' });
+  }
+});
+
+// --- POST /api/admin/reject-payment ---
+// Tolak pembayaran manual
+app.post('/api/admin/reject-payment', async (req, res) => {
+  try {
+    const { order_id, reason } = req.body;
+    
+    if (!order_id || !reason) {
+      return res.status(400).json({ error: 'order_id dan reason diperlukan' });
+    }
+
+    // Update order status ke rejected
+    await pool.query(`
+      UPDATE orders 
+      SET status = 'rejected', rejection_reason = ?
+      WHERE order_id = ?
+    `, [reason, order_id]);
+
+    console.log(`❌ Payment rejected for order ${order_id}: ${reason}`);
+    res.json({ 
+      success: true, 
+      message: 'Pembayaran telah ditolak',
+      order_id: order_id
+    });
+  } catch (err) {
+    console.error('Error rejecting payment:', err);
+    res.status(500).json({ error: 'Gagal menolak pembayaran' });
+  }
+});
+
+// --- POST /api/upload-payment-proof ---
+// Upload bukti pembayaran (manual) dan simpan path ke order
+app.post('/api/upload-payment-proof', upload.single('proof_file'), async (req, res) => {
+  try {
+    const order_id = req.body.order_id;
+    const notes = req.body.notes || null;
+    const file = req.file;
+
+    if (!order_id || !file) {
+      return res.status(400).json({ error: 'order_id dan file bukti diperlukan' });
+    }
+
+    // Pastikan order ada
+    const [orders] = await pool.query('SELECT order_id FROM orders WHERE order_id = ?', [order_id]);
+    if (orders.length === 0) {
+      // Hapus file jika order tidak ditemukan
+      try { fs.unlinkSync(file.path); } catch (e) {}
+      return res.status(404).json({ error: 'Order tidak ditemukan' });
+    }
+
+    const publicPath = `/uploads/payments/${file.filename}`;
+
+    // Simpan path file dan catatan (notes) ke tabel orders
+    await pool.query('UPDATE orders SET payment_proof_path = ?, notes = ? WHERE order_id = ?', [publicPath, notes, order_id]);
+
+    res.json({ success: true, order_id: order_id, file: publicPath });
+  } catch (err) {
+    console.error('Error uploading payment proof:', err);
+    res.status(500).json({ error: 'Gagal mengunggah bukti pembayaran' });
+  }
+});
+
+// === Route khusus untuk callback Midtrans ===
+app.get('/callback', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'callback.html'));
 });
 
 // === Fallback untuk route non-API dan non-file ===
